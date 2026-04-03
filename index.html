@@ -399,20 +399,20 @@ button,.btn{-webkit-tap-highlight-color:rgba(0,0,0,.05);cursor:pointer;font-fami
 =====================================================*/
 
 var firebaseConfig = {
-  apiKey: "AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
-  authDomain: "aiza-38b31.firebaseapp.com",
-  databaseURL: "https://aiza-38b31-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "aiza-38b31",
-  storageBucket: "aiza-38b31.firebasestorage.app",
-  messagingSenderId: "850157491678",
-  appId: "1:850157491678:web:614b2b70b934cf09fcb94f",
-  measurementId: "G-S6X470367V"
+  // ⬇️ COLLEZ VOTRE CONFIG FIREBASE ICI ⬇️
+  apiKey: "VOTRE_API_KEY",
+  authDomain: "votre-projet.firebaseapp.com",
+  databaseURL: "https://votre-projet-default-rtdb.firebaseio.com",
+  projectId: "votre-projet",
+  storageBucket: "votre-projet.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+  // ⬆️ COLLEZ VOTRE CONFIG FIREBASE ICI ⬆️
 };
 
 firebase.initializeApp(firebaseConfig);
 var fbDB = firebase.database();
 var fbRef = fbDB.ref('aiza');
-</script>
 
 /*=====================================================
   DATABASE — FIREBASE + LOCAL CACHE
@@ -436,25 +436,14 @@ function normalizeDB(raw){
     req: toArr(raw.req)
   };
 }
+
+// Synchronous read from local cache
 function gdb(){ return JSON.parse(JSON.stringify(DB)); }
 
+// Write to local cache + Firebase
 function sdb(d){
   DB = d;
   fbRef.set({u:d.u||[], i:d.i||[], req:d.req||[]});
-}
-
-/* REALTIME SYNC */
-function startRealtimeSync(){
-  fbRef.on('value', function(snap){
-    DB = normalizeDB(snap.val());
-    dbReady = true;
-    console.log("DB synced");
-  });
-
-  fbDB.ref('.info/connected').on('value', function(snap){
-    isOnline = snap.val() === true;
-    console.log("Connexion:", isOnline);
-  });
 }
 
 // REAL-TIME LISTENER — this is what makes cross-device work
@@ -517,7 +506,7 @@ function initDB(callback){
     var data = normalizeDB(snap.val());
     if(!data.u.length){
       data.u = [
-        {id:'a1',nm:'Andry Ratolojahary',em:'lectratana@gmail.com',ph:'034 29 944 17',pw:btoa('Aiza@dmin2024')',rl:'admin',pr:true,premExp:null,at:new Date().toISOString(),dA:0,dS:0,ld:new Date().toDateString()},
+        {id:'a1',nm:'Andry Ratolojahary',em:'lectratana@gmail.com',ph:'034 29 944 17',pw:'Aiza@dmin2024',rl:'admin',pr:true,premExp:null,at:new Date().toISOString(),dA:0,dS:0,ld:new Date().toDateString()},
         {id:'u1',nm:'Utilisateur Aiza',em:'user@aiza.mg',ph:'',pw:'Aiza@user2024',rl:'user',pr:false,premExp:null,at:new Date().toISOString(),dA:0,dS:0,ld:new Date().toDateString()}
       ];
       fbRef.set({u:data.u, i:data.i, req:data.req});
@@ -571,7 +560,7 @@ function swT(t){document.getElementById('tL').classList.toggle('on',t==='l');doc
 function loginSubmit(e){
   e.preventDefault();var em=document.getElementById('le').value.trim(),pw=document.getElementById('lp').value;
   if(!em||!pw){toast('Remplissez tous les champs','no');return false;}
-  var u=DB.u.find(x=>x.em===em && atob(x.pw)===pw);
+  var u=DB.u.find(function(x){return x.em===em&&x.pw===pw;});
   if(!u){toast('Email ou mot de passe incorrect','no');return false;}
   CU=u;rsd(CU);isPrem(CU);localStorage.setItem('aiza_uid',u.id);toast('Connexion réussie !','ok');enter();return false;
 }
@@ -717,28 +706,17 @@ document.addEventListener('DOMContentLoaded', function(){
       document.getElementById('splash').classList.add('off');
       setTimeout(function(){
         document.getElementById('splash').style.display='none';
-      <script>
-window.onload = function(){
-
-  initDB(function(){
-    startRealtimeSync();
-
-    // Auto login
-    var uid = localStorage.getItem('aiza_uid');
-    if(uid){
-      var u = DB.u.find(x=>x.id===uid);
-      if(u){
-        CU = u;
-        enter();
-        return;
-      }
-    }
-
-    // sinon login page
-    document.getElementById('pgL').classList.add('on');
+        var sid = localStorage.getItem('aiza_uid');
+        if(sid){
+          var u = DB.u.find(function(x){return x.id===sid;});
+          if(u){CU=u;rsd(CU);isPrem(CU);enter();return;}
+        }
+        document.getElementById('pgL').classList.add('on');
+        setTimeout(function(){document.getElementById('le').focus();},300);
+      },500);
+    },800);
   });
-
-};
+});
 </script>
 </body>
 </html>
