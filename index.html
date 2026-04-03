@@ -2,156 +2,182 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aiza - Admin & Firebase</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aiza - Cloud Edition</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
-/* ... Gardez vos styles CSS existants ici ... */
-/* Ajout d'un style pour cacher les éléments admin par défaut */
-.admin-only { display: none; }
-#pgL:not(.on) { display: none; }
+/* --- COPIEZ ICI TOUT VOTRE CSS D'ORIGINE --- */
+/* (Gardez vos variables :root, styles de boutons, modals, etc.) */
+
+:root {
+  --c1:#6C63FF; --c2:#5A52D5; --c3:#FF6584; --ok:#00C896;
+  --warn:#FFB946; --no:#FF4757; --bg:#F0F2F5; --txt:#2D3436;
+}
+body { font-family: sans-serif; background: var(--bg); margin:0; }
+.pg { display:none; padding:20px; }
+.pg.on { display:block; }
+#hdr, #bnav { display:none; }
+#hdr.v, #bnav.v { display:flex; }
+#splash { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--c1); display:flex; align-items:center; justify-content:center; z-index:9999; transition:0.5s; }
+#splash.off { opacity:0; pointer-events:none; }
+/* ... (ajoutez le reste de votre CSS ici) ... */
 </style>
 </head>
 <body>
 
+<div id="splash">
+  <h1 style="color:white; font-size:40px;">AIZA</h1>
+</div>
+
+<header id="hdr">
+  <div id="h-t">Accueil</div>
+  <button onclick="logout()" style="background:none; border:none; color:white;">Déconnexion</button>
+</header>
+
+<main>
+  <section id="pgL" class="pg">
+    <div class="auth-card">
+      <h2>Connexion</h2>
+      <form onsubmit="return loginSubmit(event)">
+        <input type="email" id="le" placeholder="Email" required><br>
+        <input type="password" id="lp" placeholder="Mot de passe" required><br>
+        <button type="submit" class="btn">Se connecter</button>
+      </form>
+      <p onclick="toggleAuth()">Pas de compte ? S'inscrire</p>
+    </div>
+  </section>
+
+  <section id="pg-home" class="pg">
+    <div id="empty-state">Connecté ! Bienvenue sur votre interface sécurisée.</div>
+    </section>
+  
+  <section id="pg-admin" class="pg">
+    <h2>Panneau de contrôle Admin</h2>
+    <p>Gestion des utilisateurs et paramètres système.</p>
+  </section>
+</main>
+
+<nav id="bnav">
+  <div onclick="go('home')">🏠</div>
+  <div onclick="openM('mA')">➕</div>
+  <div id="nav-admin" style="display:none;" onclick="go('admin')">⚙️</div>
+</nav>
+
+<div id="tst"></div>
+
 <script>
 // ==========================================
-// 1. CONFIGURATION FIREBASE (À REMPLIR)
+// CONFIGURATION FIREBASE
 // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
-  authDomain: "aiza-38b31.firebaseapp.com",
-databaseURL: "https://aiza-38b31-default-rtdb.europe-west1.firebasedatabase.app/",
-  projectId: "aiza-38b31",
-  storageBucket: "aiza-38b31.firebasestorage.app",
-  messagingSenderId: "850157491678",
-  appId: "1:850157491678:web:614b2b70b934cf09fcb94f",
+  apiKey: "VOTRE_API_KEY",
+  authDomain: "VOTRE_PROJET.firebaseapp.com",
+  projectId: "VOTRE_PROJET",
+  storageBucket: "VOTRE_PROJET.appspot.com",
+  messagingSenderId: "VOTRE_SENDER_ID",
+  appId: "VOTRE_APP_ID"
 };
 
-// Initialisation
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ==========================================
-// 2. ÉTAT DE L'APPLICATION
+// LOGIQUE DE NAVIGATION & ETAT
 // ==========================================
-let CU = null; // Current User (chargé depuis Firestore)
-let lang = localStorage.getItem('aiza_l') || 'fr';
+let CU = null; 
 
-// ==========================================
-// 3. SÉCURITÉ ET AUTHENTIFICATION
-// ==========================================
-
-// Observateur de connexion
+// ÉCOUTEUR D'ÉTAT (Le coeur du code)
 auth.onAuthStateChanged(async (user) => {
+  const splash = document.getElementById('splash');
+  
   if (user) {
-    // L'utilisateur est authentifié, on récupère son profil Firestore
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    
-    if (userDoc.exists) {
-      CU = { id: user.uid, ...userDoc.data() };
-      setupUIForUser();
-    } else {
-      // Si l'utilisateur existe en Auth mais pas en DB, on le déconnecte par sécurité
-      logout();
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        CU = { id: user.uid, ...doc.data() };
+        enterApp();
+      } else {
+        // Création auto du profil si absent (premier login)
+        const newUser = { em: user.email, rl: 'user', pr: false };
+        await db.collection('users').doc(user.uid).set(newUser);
+        CU = { id: user.uid, ...newUser };
+        enterApp();
+      }
+    } catch (e) {
+      console.error(e);
+      toast("Erreur de profil", "no");
     }
   } else {
-    // Rediriger vers l'écran de login
-    showLoginScreen();
+    showAuth();
   }
+  splash.classList.add('off');
 });
 
-function setupUIForUser() {
-  // Cacher le splash et le login
-  document.getElementById('splash').style.display = 'none';
+function enterApp() {
   document.getElementById('pgL').classList.remove('on');
-  
-  // Afficher le header et la nav
   document.getElementById('hdr').classList.add('v');
   document.getElementById('bnav').classList.add('v');
-
-  // Sécurité Admin : Affichage conditionnel des menus
-  if (CU.role === 'admin') {
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+  
+  // Sécurité visuelle Admin
+  if (CU.rl === 'admin') {
+    document.getElementById('nav-admin').style.display = 'block';
   }
-
-  go('home'); // Aller à l'accueil
+  
+  go('home');
 }
 
-async function loginSubmit(e) {
-  e.preventDefault();
-  const email = document.getElementById('le').value.trim();
-  const pass = document.getElementById('lp').value;
-
-  try {
-    await auth.signInWithEmailAndPassword(email, pass);
-    toast('Connexion réussie', 'ok');
-  } catch (err) {
-    toast('Erreur : ' + err.message, 'no');
-  }
-  return false;
-}
-
-function logout() {
-  auth.signOut().then(() => {
-    CU = null;
-    location.reload(); // Recharge pour réinitialiser l'état proprement
-  });
-}
-
-// ==========================================
-// 4. GESTION DES DONNÉES (CRUD FIRESTORE)
-// ==========================================
-
-// Remplacer votre ancienne fonction d'ajout par celle-ci
-async function saveItem() {
-  const name = document.getElementById('aN').value.trim();
-  const zone = document.getElementById('aZ').value;
-
-  if (!name) return toast('Nom requis', 'no');
-
-  const newItem = {
-    uid: CU.id, // Liaison avec l'utilisateur
-    name: name,
-    zone: zone,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    await db.collection('items').add(newItem);
-    toast('Enregistré !', 'ok');
-    closeM('mA');
-    refreshList(); // Votre fonction de mise à jour de l'affichage
-  } catch (e) {
-    toast('Erreur de sauvegarde', 'no');
-  }
-}
-
-// ==========================================
-// 5. INITIALISATION
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-  // On laisse l'observateur Firebase (auth.onAuthStateChanged) gérer la suite
-  setTimeout(() => {
-    if (!auth.currentUser) {
-      document.getElementById('splash').classList.add('off');
-    }
-  }, 1500);
-});
-
-function showLoginScreen() {
-  document.getElementById('splash').classList.add('off');
+function showAuth() {
   document.getElementById('pgL').classList.add('on');
   document.getElementById('hdr').classList.remove('v');
   document.getElementById('bnav').classList.remove('v');
 }
 
-// ... Vos autres fonctions utilitaires (go, toast, openM) restent identiques ...
+// FONCTION DE NAVIGATION (CORRIGÉE)
+function go(id) {
+  // Cacher toutes les pages
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  // Afficher la page demandée
+  const target = document.getElementById('pg-' + id);
+  if (target) target.classList.add('on');
+  
+  // Mise à jour du titre header
+  const titles = { 'home': 'Accueil', 'admin': 'Administration' };
+  document.getElementById('h-t').innerText = titles[id] || 'Aiza';
+}
+
+// ACTIONS AUTH
+async function loginSubmit(e) {
+  e.preventDefault();
+  const em = document.getElementById('le').value;
+  const pw = document.getElementById('lp').value;
+  try {
+    await auth.signInWithEmailAndPassword(em, pw);
+    toast("Connexion...", "ok");
+  } catch (err) {
+    toast("Erreur : " + err.message, "no");
+  }
+  return false;
+}
+
+function logout() {
+  auth.signOut().then(() => location.reload());
+}
+
+// UTILITAIRES
+function toast(m, s) {
+  const t = document.getElementById('tst');
+  t.innerText = m;
+  t.className = 'v ' + s;
+  setTimeout(() => t.className = '', 3000);
+}
+
+function openM(id) { /* Votre logique de modal */ }
+function closeM(id) { /* Votre logique de modal */ }
 
 </script>
 </body>
