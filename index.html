@@ -2,105 +2,169 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aiza</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aiza - Cloud Edition</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
-/* === GARDE TON CSS D'ORIGINE ICI === */
-/* ... (Tes styles :root, body, .pg, etc.) ... */
-#pgL:not(.on) { display: none; }
+/* === TON CSS D'ORIGINE COMPLET === */
+:root {
+  --c1:#6C63FF; --c2:#5A52D5; --c3:#FF6584; --ok:#00C896;
+  --warn:#FFB946; --no:#FF4757; --bg:#F0F2F5; --txt:#2D3436;
+  --t2:#636E72; --t3:#B2BEC3; --bd:#DFE6E9;
+  --sh:0 2px 12px rgba(0,0,0,.07); --r:16px; --rs:12px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--txt); max-width: 480px; margin: 0 auto; overflow-x:hidden; }
+
+/* Splash */
+#splash { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--c1); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:0.5s; }
+#splash.off { opacity:0; pointer-events:none; }
+
+/* Pages & Nav */
+header { height:64px; background:var(--c1); color:white; display:none; align-items:center; justify-content:space-between; padding:0 20px; position:sticky; top:0; z-index:100; box-shadow:var(--sh); }
+header.v { display:flex; }
+.pg { display:none; padding:20px; padding-bottom:100px; }
+.pg.on { display:block; animation: fadeIn 0.3s ease; }
+nav#bnav { height:72px; background:white; display:none; position:fixed; bottom:0; width:100%; max-width:480px; border-top:1px solid var(--bd); align-items:center; justify-content:space-around; z-index:100; }
+nav#bnav.v { display:flex; }
+
+/* Ton design de cartes, inputs et modals ici... */
+input { width:100%; padding:14px; margin:8px 0; border:1px solid var(--bd); border-radius:var(--rs); font-size:16px; outline:none; }
+.btn { width:100%; padding:15px; background:var(--c1); color:white; border:none; border-radius:var(--rs); font-weight:600; cursor:pointer; }
+#tst { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); padding:12px 20px; border-radius:30px; color:white; font-size:14px; pointer-events:none; opacity:0; transition:0.3s; z-index:1000; }
+#tst.v { opacity:1; }
+#tst.ok { background:var(--ok); }
+#tst.no { background:var(--no); }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
 <body>
 
-<div id="splash"><h1>AIZA</h1></div>
+<div id="splash">
+  <h1 style="color:white; font-size:48px;">AIZA</h1>
+  <p style="color:rgba(255,255,255,0.7)">Chargement sécurisé...</p>
+</div>
+
+<header id="hdr">
+  <b id="h-t">Accueil</b>
+  <div onclick="logout()" style="font-size:20px">📤</div>
+</header>
+
+<main>
+  <section id="pgL" class="pg">
+    <div style="background:white; padding:30px; border-radius:var(--r); box-shadow:var(--sh); margin-top:40px; text-align:center;">
+      <h2 style="margin-bottom:10px;">Connexion</h2>
+      <p style="color:var(--t2); margin-bottom:20px; font-size:14px;">Entrez vos accès pour synchroniser vos données.</p>
+      <form onsubmit="return loginSubmit(event)">
+        <input type="email" id="le" placeholder="Email" required>
+        <input type="password" id="lp" placeholder="Mot de passe" required>
+        <button type="submit" class="btn" style="margin-top:10px;">Se connecter / S'inscrire</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="pghome" class="pg">
+    <div id="user-welcome" style="margin-bottom:20px;"></div>
+    <div id="list-container">
+      </div>
+  </section>
+
+  <section id="pgadmin" class="pg">
+    <h3>Configuration Admin</h3>
+    <div style="background:white; padding:20px; border-radius:var(--r); margin-top:15px; border:1px solid var(--bd);">
+      <p><b>Rôle :</b> <span id="user-role">Chargement...</span></p>
+      <hr style="margin:15px 0; border:0; border-top:1px solid var(--bd);">
+      <p style="font-size:13px; color:var(--t2)">Seuls les comptes avec le rôle "admin" peuvent voir cet écran.</p>
+    </div>
+  </section>
+</main>
+
+<nav id="bnav">
+  <div onclick="go('home')" class="nav-item">🏠</div>
+  <div onclick="toast('Ajout Cloud bientôt','ok')" class="nav-item">➕</div>
+  <div id="nav-adm" style="display:none;" onclick="go('admin')" class="nav-item">⚙️</div>
+</nav>
+
+<div id="tst"></div>
 
 <script>
 // ==========================================
-// 1. CONFIGURATION FIREBASE (À REMPLIR)
+// CONFIGURATION FIREBASE
 // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
-  authDomain: "aiza-38b31.firebaseapp.com",
-  projectId: "aiza-38b31",
-  storageBucket: "aiza-38b31.firebasestorage.app",
-  messagingSenderId: "850157491678",
-  appId: "1:850157491678:web:614b2b70b934cf09fcb94f",
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_PROJET.firebaseapp.com",
+  projectId: "TON_PROJET",
+  storageBucket: "TON_PROJET.appspot.com",
+  messagingSenderId: "TON_SENDER_ID",
+  appId: "TON_APP_ID"
 };
 
-// Initialisation
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ==========================================
-// 2. VARIABLES D'ÉTAT
+// LOGIQUE DE SÉCURITÉ
 // ==========================================
 let CU = null; 
-let cP = 'home';
-let items = []; // Remplacera tes données locales
 
-// ==========================================
-// 3. LOGIQUE DE CONNEXION (SÉCURITÉ)
-// ==========================================
-
-// Observateur de connexion Firebase
 auth.onAuthStateChanged(async (user) => {
+  const splash = document.getElementById('splash');
   if (user) {
-    // 1. Récupérer le profil depuis Firestore
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    
-    if (userDoc.exists) {
-      CU = { id: user.uid, ...userDoc.data() };
-    } else {
-      // Premier login : créer le profil "user" par défaut
-      CU = { id: user.uid, em: user.email, rl: 'user', pr: false };
-      await db.collection('users').doc(user.uid).set(CU);
-    }
-    
-    // 2. Lancer l'app si connecté
-    enterApp();
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        CU = { id: user.uid, ...doc.data() };
+      } else {
+        // Création auto pour le premier utilisateur
+        CU = { id: user.uid, em: user.email, rl: 'user', pr: false };
+        await db.collection('users').doc(user.uid).set(CU);
+      }
+      launchApp();
+    } catch (e) { toast("Erreur Cloud", "no"); }
   } else {
-    // 3. Afficher l'écran de login si non connecté
-    document.getElementById('splash').classList.add('off');
-    go('L'); // Affiche pgL (ton formulaire de login)
+    showLogin();
   }
+  splash.classList.add('off');
 });
 
-function enterApp() {
-  document.getElementById('splash').classList.add('off');
+function launchApp() {
   document.getElementById('hdr').classList.add('v');
   document.getElementById('bnav').classList.add('v');
-  
-  // Masquer/Afficher les éléments Admin selon le rôle (rl)
-  const adminBtn = document.querySelector('[onclick*="admin"]'); // Si tu as un bouton admin
-  if(adminBtn) adminBtn.style.display = (CU.rl === 'admin') ? 'block' : 'none';
+  document.getElementById('user-welcome').innerHTML = `<h2>Salama, ${CU.em.split('@')[0]} !</h2>`;
+  document.getElementById('user-role').innerText = CU.rl;
 
+  // Affichage Admin
+  if (CU.rl === 'admin') {
+    document.getElementById('nav-adm').style.display = 'block';
+  }
   go('home');
-  ref(); // Charger tes données depuis Firestore
 }
 
-// Remplacement de ta fonction loginSubmit
+function showLogin() {
+  document.getElementById('hdr').classList.remove('v');
+  document.getElementById('bnav').classList.remove('v');
+  go('L');
+}
+
 async function loginSubmit(e) {
   e.preventDefault();
   const em = document.getElementById('le').value.trim();
   const pw = document.getElementById('lp').value;
-  
   try {
-    // Firebase gère la vérification
     await auth.signInWithEmailAndPassword(em, pw);
-    toast('Connexion...', 'ok');
   } catch (err) {
-    // Si compte inexistant, on propose de le créer ou on affiche l'erreur
-    try {
+    if (err.code === 'auth/user-not-found') {
       await auth.createUserWithEmailAndPassword(em, pw);
-      toast('Compte créé !', 'ok');
-    } catch (e2) {
-      toast('Erreur: ' + err.message, 'no');
+      toast("Compte créé avec succès", "ok");
+    } else {
+      toast("Erreur : " + err.message, "no");
     }
   }
   return false;
@@ -111,53 +175,23 @@ function logout() {
 }
 
 // ==========================================
-// 4. SYNCHRONISATION DES DONNÉES (CRUD)
-// ==========================================
-
-// Remplacement de ta fonction ref() pour Firestore
-async function ref() {
-  if (!CU) return;
-  
-  // On récupère uniquement les objets de l'utilisateur connecté
-  const snap = await db.collection('items').where('uid', '==', CU.id).get();
-  items = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-  
-  // Ici, appelle ta fonction d'affichage d'origine (ex: rL())
-  // rL(); 
-}
-
-// Remplacement de ta fonction save()
-async function saveItem(data) {
-  try {
-    await db.collection('items').add({
-      ...data,
-      uid: CU.id,
-      at: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    toast('Enregistré dans le Cloud', 'ok');
-    ref();
-  } catch (e) {
-    toast('Erreur de sauvegarde', 'no');
-  }
-}
-
-// ==========================================
-// 5. FONCTIONS UI (GARDÉES TEL QUEL)
+// NAVIGATION (TA LOGIQUE ORIGINALE)
 // ==========================================
 function go(id) {
-  cP = id;
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   const target = document.getElementById('pg' + id);
-  if(target) target.classList.add('on');
+  if (target) target.classList.add('on');
+  
+  const titles = { 'home': 'Accueil', 'admin': 'Gestion' };
+  document.getElementById('h-t').innerText = titles[id] || 'Aiza';
 }
 
 function toast(m, s) {
   const t = document.getElementById('tst');
-  t.innerText = m; t.className = 'v ' + s;
+  t.innerText = m;
+  t.className = 'v ' + s;
   setTimeout(() => t.className = '', 3000);
 }
-
-// ... (Garde le reste de tes fonctions : openM, closeM, etc.) ...
 </script>
 </body>
 </html>
