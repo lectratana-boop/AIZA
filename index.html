@@ -1,71 +1,171 @@
-Aiza Project - Corrected HTML Code
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aiza</title>
+<title>Aiza App</title>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
+<style>
+body{font-family:sans-serif;margin:0;background:#f5f5f5}
+.page{display:none;padding:20px}
+.on{display:block}
+input,button{padding:10px;margin:5px;width:200px}
+button{cursor:pointer;background:#333;color:#fff;border:none}
+.card{background:#fff;padding:15px;margin:10px 0;border-radius:10px}
+</style>
 </head>
+
 <body>
 
-<h1>Aiza App</h1>
+<!-- LOGIN -->
+<div id="pgLogin" class="page on">
+  <h2>Connexion</h2>
+  <input id="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Mot de passe"><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="pgHome" class="page">
+  <h2>Dashboard</h2>
+  <button onclick="logout()">Logout</button>
+
+  <div class="card">
+    <h3>Créer un item</h3>
+    <input id="itemName" placeholder="Nom item">
+    <button onclick="addItem()">Ajouter</button>
+  </div>
+
+  <div class="card">
+    <h3>Liste des items</h3>
+    <div id="items"></div>
+  </div>
+</div>
 
 <script>
-// FIREBASE CONFIG
+// ================= FIREBASE =================
 const firebaseConfig = {
-  apiKey: "AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
+  apiKey:"AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
   authDomain: "aiza-38b31.firebaseapp.com",
   databaseURL: "https://aiza-38b31-default-rtdb.europe-west1.firebasedatabase.app/",
-  projectId: "aiza-38b31"                                                                                                                 
+  projectId: "aiza-38b31",
 };
 
 firebase.initializeApp(firebaseConfig);
-const fbDB = firebase.database();
-const fbRef = fbDB.ref("aiza");
+const db = firebase.database();
+const ref = db.ref("aiza");
 
-// DATABASE
+// ================= DATABASE =================
 var DB = {u:[],i:[],req:[]};
+var CURRENT_USER = null;
 
+// ================= UTIL =================
 function toArr(obj){
-  if(Array.isArray(obj)) return obj.filter(x=>x!=null);
+  if(Array.isArray(obj)) return obj.filter(x=>x);
   if(!obj) return [];
-  return Object.keys(obj).map(k=>obj[k]).filter(x=>x!=null);
+  return Object.keys(obj).map(k=>obj[k]);
 }
 
-function normalizeDB(raw){
-  if(!raw) return {u:[],i:[],req:[]};
-  return {
-    u: toArr(raw.u),
-    i: toArr(raw.i),
-    req: toArr(raw.req)
-  };
-}
+// ================= SYNC =================
+function sync(){
+  ref.on("value", snap=>{
+    let data = snap.val() || {};
+    DB.u = toArr(data.u);
+    DB.i = toArr(data.i);
+    DB.req = toArr(data.req);
 
-function startRealtimeSync(){
-  fbRef.on('value', function(snap){
-    DB = normalizeDB(snap.val());
-    console.log("DB synced");
+    renderItems();
+    console.log("DB sync OK");
   });
 }
 
-// LOGIN SIMPLE (encoded password)
-function login(email, password){
-  var u = DB.u.find(x=>x.em===email && atob(x.pw)===password);
-  if(u){
-    localStorage.setItem("aiza_uid", u.id);
-    alert("Login OK");
-  } else {
+// ================= LOGIN =================
+function login(){
+  let em = email.value;
+  let pw = password.value;
+
+  let user = DB.u.find(x=>x.em===em && atob(x.pw)===pw);
+
+  if(user){
+    CURRENT_USER = user;
+    localStorage.setItem("uid", user.id);
+    show("pgHome");
+  }else{
     alert("Erreur login");
   }
 }
 
-// INIT
+// ================= LOGOUT =================
+function logout(){
+  localStorage.removeItem("uid");
+  CURRENT_USER = null;
+  show("pgLogin");
+}
+
+// ================= NAV =================
+function show(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+}
+
+// ================= ITEMS =================
+function addItem(){
+  let name = itemName.value;
+
+  if(!name) return alert("Nom requis");
+
+  let item = {
+    id: Date.now()+"",
+    name:name,
+    uid: CURRENT_USER.id
+  };
+
+  DB.i.push(item);
+  saveDB();
+  itemName.value="";
+}
+
+function renderItems(){
+  let el = document.getElementById("items");
+  if(!el) return;
+
+  el.innerHTML = "";
+
+  DB.i.forEach(i=>{
+    let div = document.createElement("div");
+    div.className="card";
+    div.innerText = i.name;
+    el.appendChild(div);
+  });
+}
+
+// ================= SAVE =================
+function saveDB(){
+  ref.set(DB);
+}
+
+// ================= INIT =================
 window.onload = function(){
-  startRealtimeSync();
+
+  sync();
+
+  let uid = localStorage.getItem("uid");
+
+  if(uid){
+    let check = setInterval(()=>{
+      let u = DB.u.find(x=>x.id===uid);
+      if(u){
+        CURRENT_USER = u;
+        show("pgHome");
+        clearInterval(check);
+      }
+    },300);
+  }
+
 };
 </script>
 
