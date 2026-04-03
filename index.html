@@ -717,17 +717,28 @@ document.addEventListener('DOMContentLoaded', function(){
       document.getElementById('splash').classList.add('off');
       setTimeout(function(){
         document.getElementById('splash').style.display='none';
-        var sid = localStorage.getItem('aiza_uid');
-        if(sid){
-          var u = DB.u.find(function(x){return x.id===sid;});
-          if(u){CU=u;rsd(CU);isPrem(CU);enter();return;}
-        }
-        document.getElementById('pgL').classList.add('on');
-        setTimeout(function(){document.getElementById('le').focus();},300);
-      },500);
-    },800);
+      <script>
+window.onload = function(){
+
+  initDB(function(){
+    startRealtimeSync();
+
+    // Auto login
+    var uid = localStorage.getItem('aiza_uid');
+    if(uid){
+      var u = DB.u.find(x=>x.id===uid);
+      if(u){
+        CU = u;
+        enter();
+        return;
+      }
+    }
+
+    // sinon login page
+    document.getElementById('pgL').classList.add('on');
   });
-});
+
+};
 </script>
 </body>
 </html>
