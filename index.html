@@ -10,60 +10,84 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
-/* --- COPIEZ ICI TOUT VOTRE CSS D'ORIGINE --- */
-/* (Gardez vos variables :root, styles de boutons, modals, etc.) */
-
+/* --- VOS STYLES EXISTANTS --- */
 :root {
   --c1:#6C63FF; --c2:#5A52D5; --c3:#FF6584; --ok:#00C896;
   --warn:#FFB946; --no:#FF4757; --bg:#F0F2F5; --txt:#2D3436;
+  --t2:#636E72; --t3:#B2BEC3; --bd:#DFE6E9;
+  --sh:0 2px 12px rgba(0,0,0,.07); --r:16px; --rs:12px;
 }
-body { font-family: sans-serif; background: var(--bg); margin:0; }
-.pg { display:none; padding:20px; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: sans-serif; background: var(--bg); color: var(--txt); max-width: 480px; margin: 0 auto; }
+
+/* Splash Screen */
+#splash { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--c1); display:flex; align-items:center; justify-content:center; z-index:9999; }
+#splash.off { display:none; }
+
+/* Layout */
+header { height:64px; background:var(--c1); color:white; display:none; align-items:center; justify-content:space-between; padding:0 20px; position:sticky; top:0; z-index:100; }
+header.v { display:flex; }
+.pg { display:none; padding:20px; min-height: calc(100vh - 140px); }
 .pg.on { display:block; }
-#hdr, #bnav { display:none; }
-#hdr.v, #bnav.v { display:flex; }
-#splash { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--c1); display:flex; align-items:center; justify-content:center; z-index:9999; transition:0.5s; }
-#splash.off { opacity:0; pointer-events:none; }
-/* ... (ajoutez le reste de votre CSS ici) ... */
+nav#bnav { height:70px; background:white; display:none; position:fixed; bottom:0; width:100%; max-width:480px; border-top:1px solid var(--bd); align-items:center; justify-content:space-around; z-index:100; }
+nav#bnav.v { display:flex; }
+
+/* Auth Card */
+.auth-card { background:white; padding:30px; border-radius:var(--r); box-shadow:var(--sh); margin-top:50px; text-align:center; }
+input { width:100%; padding:14px; margin:10px 0; border:1px solid var(--bd); border-radius:var(--rs); font-size:16px; }
+.btn { width:100%; padding:14px; background:var(--c1); color:white; border:none; border-radius:var(--rs); font-weight:bold; cursor:pointer; }
+#tst { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); padding:12px 24px; border-radius:30px; color:white; font-size:14px; opacity:0; transition:.3s; z-index:1000; }
+#tst.v { opacity:1; }
+#tst.ok { background:var(--ok); }
+#tst.no { background:var(--no); }
+#tst.warn { background:var(--warn); }
 </style>
 </head>
 <body>
 
 <div id="splash">
-  <h1 style="color:white; font-size:40px;">AIZA</h1>
+  <h1 style="color:white; font-size:42px; letter-spacing:2px;">AIZA</h1>
 </div>
 
 <header id="hdr">
-  <div id="h-t">Accueil</div>
-  <button onclick="logout()" style="background:none; border:none; color:white;">Déconnexion</button>
+  <b id="h-t">Accueil</b>
+  <div onclick="logout()" style="font-size:12px; opacity:0.8;">Déconnexion</div>
 </header>
 
 <main>
   <section id="pgL" class="pg">
     <div class="auth-card">
-      <h2>Connexion</h2>
+      <h2 style="margin-bottom:20px;">Bienvenue</h2>
       <form onsubmit="return loginSubmit(event)">
-        <input type="email" id="le" placeholder="Email" required><br>
-        <input type="password" id="lp" placeholder="Mot de passe" required><br>
+        <input type="email" id="le" placeholder="Email" required>
+        <input type="password" id="lp" placeholder="Mot de passe" required>
         <button type="submit" class="btn">Se connecter</button>
       </form>
-      <p onclick="toggleAuth()">Pas de compte ? S'inscrire</p>
+      <p style="margin-top:20px; font-size:14px; color:var(--t2)" onclick="toast('Contactez l\'admin pour un compte','warn')">
+        Besoin d'un accès ?
+      </p>
     </div>
   </section>
 
-  <section id="pg-home" class="pg">
-    <div id="empty-state">Connecté ! Bienvenue sur votre interface sécurisée.</div>
-    </section>
-  
-  <section id="pg-admin" class="pg">
-    <h2>Panneau de contrôle Admin</h2>
-    <p>Gestion des utilisateurs et paramètres système.</p>
+  <section id="pghome" class="pg">
+    <div id="welcome-msg"></div>
+    <div id="items-list" style="margin-top:20px;">
+      <p style="color:var(--t2); text-align:center;">Chargement de vos données...</p>
+    </div>
+  </section>
+
+  <section id="pgadmin" class="pg">
+    <h3>Paramètres Admin</h3>
+    <div style="background:white; padding:15px; border-radius:var(--rs); margin-top:15px; border:1px solid var(--bd);">
+      <p><b>Statut :</b> Administrateur</p>
+      <p style="font-size:13px; color:var(--t2); margin-top:5px;">Vous avez accès à la modification des zones et des utilisateurs.</p>
+    </div>
   </section>
 </main>
 
 <nav id="bnav">
   <div onclick="go('home')">🏠</div>
-  <div onclick="openM('mA')">➕</div>
+  <div onclick="toast('Ajout bientôt disponible','warn')">➕</div>
   <div id="nav-admin" style="display:none;" onclick="go('admin')">⚙️</div>
 </nav>
 
@@ -71,7 +95,7 @@ body { font-family: sans-serif; background: var(--bg); margin:0; }
 
 <script>
 // ==========================================
-// CONFIGURATION FIREBASE
+// 1. CONFIGURATION FIREBASE
 // ==========================================
 const firebaseConfig = {
   apiKey: "VOTRE_API_KEY",
@@ -87,11 +111,10 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ==========================================
-// LOGIQUE DE NAVIGATION & ETAT
+// 2. LOGIQUE D'AUTHENTIFICATION & SÉCURITÉ
 // ==========================================
 let CU = null; 
 
-// ÉCOUTEUR D'ÉTAT (Le coeur du code)
 auth.onAuthStateChanged(async (user) => {
   const splash = document.getElementById('splash');
   
@@ -100,64 +123,67 @@ auth.onAuthStateChanged(async (user) => {
       const doc = await db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         CU = { id: user.uid, ...doc.data() };
-        enterApp();
       } else {
-        // Création auto du profil si absent (premier login)
-        const newUser = { em: user.email, rl: 'user', pr: false };
-        await db.collection('users').doc(user.uid).set(newUser);
-        CU = { id: user.uid, ...newUser };
-        enterApp();
+        // Création d'un profil par défaut si c'est la première fois
+        CU = { id: user.uid, email: user.email, rl: 'user' };
+        await db.collection('users').doc(user.uid).set(CU);
       }
+      setupInterface();
     } catch (e) {
-      console.error(e);
-      toast("Erreur de profil", "no");
+      toast("Erreur de connexion aux données", "no");
     }
   } else {
-    showAuth();
+    showLogin();
   }
-  splash.classList.add('off');
+  splash.classList.add('off'); // On cache le splash dans tous les cas
 });
 
-function enterApp() {
+function setupInterface() {
   document.getElementById('pgL').classList.remove('on');
   document.getElementById('hdr').classList.add('v');
   document.getElementById('bnav').classList.add('v');
   
-  // Sécurité visuelle Admin
+  // Affichage du bouton admin uniquement pour le rôle admin
   if (CU.rl === 'admin') {
     document.getElementById('nav-admin').style.display = 'block';
   }
   
+  document.getElementById('welcome-msg').innerHTML = `<b>Bonjour, ${CU.email.split('@')[0]}</b>`;
   go('home');
 }
 
-function showAuth() {
+function showLogin() {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById('pgL').classList.add('on');
   document.getElementById('hdr').classList.remove('v');
   document.getElementById('bnav').classList.remove('v');
 }
 
-// FONCTION DE NAVIGATION (CORRIGÉE)
-function go(id) {
-  // Cacher toutes les pages
+// ==========================================
+// 3. NAVIGATION ET UI
+// ==========================================
+function go(pgId) {
+  // Masquer toutes les pages
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
-  // Afficher la page demandée
-  const target = document.getElementById('pg-' + id);
-  if (target) target.classList.add('on');
   
-  // Mise à jour du titre header
-  const titles = { 'home': 'Accueil', 'admin': 'Administration' };
-  document.getElementById('h-t').innerText = titles[id] || 'Aiza';
+  // Afficher la page cible
+  const target = document.getElementById('pg' + pgId);
+  if (target) {
+    target.classList.add('on');
+    
+    // Mettre à jour le titre
+    const titles = { 'home': 'Accueil', 'admin': 'Gestion' };
+    document.getElementById('h-t').innerText = titles[pgId] || 'Aiza';
+  }
 }
 
-// ACTIONS AUTH
 async function loginSubmit(e) {
   e.preventDefault();
   const em = document.getElementById('le').value;
   const pw = document.getElementById('lp').value;
   try {
     await auth.signInWithEmailAndPassword(em, pw);
-    toast("Connexion...", "ok");
+    toast("Connexion réussie", "ok");
   } catch (err) {
     toast("Erreur : " + err.message, "no");
   }
@@ -168,17 +194,12 @@ function logout() {
   auth.signOut().then(() => location.reload());
 }
 
-// UTILITAIRES
 function toast(m, s) {
   const t = document.getElementById('tst');
   t.innerText = m;
   t.className = 'v ' + s;
   setTimeout(() => t.className = '', 3000);
 }
-
-function openM(id) { /* Votre logique de modal */ }
-function closeM(id) { /* Votre logique de modal */ }
-
 </script>
 </body>
 </html>
