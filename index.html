@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Aiza - Gestion d'objets textiles</title>
+<title>Aiza - Gestion textile</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--c1:#6C63FF;--c2:#5A52D5;--c3:#FF6584;--ok:#00C896;--warn:#FFB946;--no:#FF4757;--bg:#F0F2F5;--txt:#2D3436;--t2:#636E72;--t3:#B2BEC3;--bd:#DFE6E9;--sh:0 2px 12px rgba(0,0,0,.07);--r:16px;--rs:12px}
@@ -68,9 +68,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 .sb{position:relative;margin-bottom:14px}
 .sb .sic{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--t3)}
 .sb input{padding-left:46px}
-.sfr{display:flex;gap:7px;overflow-x:auto;margin-bottom:14px}
-.sf{padding:8px 14px;border-radius:50px;border:2px solid var(--bd);background:#fff;font-size:12px;font-weight:600;white-space:nowrap}
-.sf.on{background:var(--c1);border-color:var(--c1);color:#fff}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:none;align-items:flex-end;justify-content:center;max-width:480px;margin:0 auto}
 .mbg.v{display:flex}
 .mdl{background:#fff;border-radius:22px 22px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding-bottom:20px}
@@ -88,22 +85,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 .dyn-group select{flex:1}
 .dyn-group button{padding:8px 12px;width:auto;margin:0;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:12px;font-weight:600}
 .dyn-add-btn{margin-top:8px;background:var(--ok);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;width:100%}
-.map-preview{background:#E8F0FE;border-radius:var(--rs);padding:12px;margin-top:8px;text-align:center;cursor:pointer;border:1px solid var(--c1)}
-.map-coord{font-size:12px;color:var(--t2);margin-top:6px}
 .emp{text-align:center;padding:32px 16px;color:var(--t2)}
 .asg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .asc{background:#fff;border-radius:var(--r);padding:16px;text-align:center;box-shadow:var(--sh)}
 .asc .an{font-size:24px;font-weight:900;color:var(--c1)}
 .atb{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto}
-.at{padding:9px 14px;border-radius:50px;border:none;background:#fff;font-weight:700;font-size:12px}
+.at{padding:9px 14px;border-radius:50px;border:none;background:#fff;font-weight:700;font-size:12px;position:relative}
 .at.on{background:var(--c1);color:#fff}
 .at .at-bdg{position:absolute;top:-3px;right:-3px;background:var(--no);color:#fff;font-size:8px;min-width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .req-card{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--sh);border-left:4px solid var(--warn)}
-.req-card.approved{border-left-color:var(--ok)}
-.req-acts{display:flex;gap:8px;margin-top:10px}
 .uli{display:flex;align-items:center;gap:10px;padding:12px;background:#fff;border-radius:var(--rs);margin-bottom:7px;box-shadow:var(--sh)}
 .ulv{width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
 .reset-zone{margin-top:20px;padding:16px;background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.2);border-radius:var(--r)}
+.history-item{background:#f8f9fa;border-radius:var(--rs);padding:10px;margin-bottom:8px;font-size:12px;border-left:3px solid var(--c1)}
+.backup-btn{background:var(--ok);color:#fff;border:none;border-radius:8px;padding:10px;margin-top:10px;width:100%;font-weight:600}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 </style>
 </head>
 <body>
@@ -124,7 +120,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
       <div class="fg"><label class="fl">Mot de passe</label><input type="password" id="lp" placeholder="Mot de passe" required></div>
       <button class="btn btn-p">🔑 Se connecter</button>
       <div class="fg" style="margin-top:12px;background:#F0F2F5;padding:12px;border-radius:12px;font-size:12px">
-        <strong>📋 Comptes de démonstration :</strong><br>
+        <strong>📋 Comptes :</strong><br>
         👑 Admin: lectratana@gmail.com / Aiza@dmin2024<br>
         👤 User: user@test.com / 123456
       </div>
@@ -162,7 +158,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
     <button class="qa" onclick="openAdd()"><div class="qa-i">➕</div><span>Ajouter</span></button>
     <button class="qa" onclick="go('search')"><div class="qa-i">🔍</div><span>Recherche</span></button>
     <button class="qa" onclick="go('items')"><div class="qa-i">📦</div><span>Mes objets</span></button>
-    <button class="qa" onclick="getCurrentLocation()"><div class="qa-i">📍</div><span>Localiser</span></button>
+    <button class="qa" onclick="openAdd()"><div class="qa-i">📊</div><span>Stock</span></button>
   </div>
   <div class="st"><span>📦 Derniers objets</span><button class="sa" onclick="go('items')">Voir tout ›</button></div>
   <div id="recI"></div>
@@ -170,8 +166,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 
 <div class="pg" id="pgSearch">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:14px">🔍 Recherche</h2>
-  <div class="sb"><span class="sic">🔎</span><input type="text" id="sI" placeholder="Nom, Customer, OC Number..." autocomplete="off" oninput="doSearch()"></div>
-  <div class="sfr"><button class="sf on" onclick="setFilter('all',this)">Tout</button><button class="sf" onclick="setFilter('maison',this)">🏠 Maison</button><button class="sf" onclick="setFilter('usine',this)">🏭 Usine</button></div>
+  <div class="sb"><span class="sic">🔎</span><input type="text" id="sI" placeholder="PO Fabric, Style, OC Number..." autocomplete="off" oninput="doSearch()"></div>
   <div id="sR"></div>
 </div>
 
@@ -190,9 +185,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 <div class="pg" id="pgAdmin">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:14px">⚙️ Administration</h2>
   <div class="asg"><div class="asc"><div class="an" id="statUsers">0</div><div class="al">Utilisateurs</div></div><div class="asc"><div class="an" id="statItems">0</div><div class="al">Objets</div></div></div>
-  <div class="atb"><button class="at on" onclick="adminTab('users',this)">Utilisateurs</button><button class="at" onclick="adminTab('items',this)">Objets</button><button class="at" id="reqTabBtn" onclick="adminTab('requests',this)">Demandes Premium <span id="reqBadge" class="at-bdg" style="display:none">0</span></button></div>
-  <div id="adminUsers"></div><div id="adminItems" style="display:none"></div><div id="adminRequests" style="display:none"></div>
-  <div class="reset-zone"><h4 style="color:var(--no)">⚠️ Zone dangereuse</h4><p>Réinitialiser supprime toutes les données</p><button class="btn btn-no btn-sm" onclick="resetAllData()">🗑️ Réinitialiser l'application</button></div>
+  <div class="atb"><button class="at on" onclick="adminTab('users',this)">Utilisateurs</button><button class="at" onclick="adminTab('history',this)">Historique</button><button class="at" onclick="adminTab('backup',this)">Backup</button></div>
+  <div id="adminUsers"></div>
+  <div id="adminHistory" style="display:none"></div>
+  <div id="adminBackup" style="display:none"></div>
 </div>
 
 <!-- ADD MODAL -->
@@ -201,9 +197,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
   <div class="fg"><label class="fl">👥 CUSTOMER *</label><div class="dyn-group"><select id="customerSelect"></select><button onclick="openAddCustomer()">➕</button><button onclick="deleteCurrentCustomer()" style="background:#ffe0e0">🗑️</button></div><button class="dyn-add-btn" onclick="openAddCustomer()">+ Ajouter un client</button></div>
   <div class="fg"><label class="fl">🏷️ Style</label><input type="text" id="styleField" placeholder="Ex: Slim Fit, Oversized"></div>
   <div class="fg"><label class="fl">🎨 Color</label><input type="text" id="colorField" placeholder="Ex: Bleu marine"></div>
-  <div class="fg"><label class="fl">🧵 PO Fabric</label><input type="text" id="poFabric" placeholder="Référence tissu"></div>
+  <div class="fg"><label class="fl">🧵 PO Fabric *</label><input type="text" id="poFabric" placeholder="Référence tissu" required></div>
   <div class="fg"><label class="fl">🔢 OC Number *</label><input type="text" id="ocNumber" placeholder="Numéro OC" required></div>
-  <div class="fg"><label class="fl">📍 Localisation (GPS)</label><button class="btn btn-ghost btn-sm" style="width:100%" onclick="getCurrentLocation()">📍 Obtenir ma position</button><div class="map-preview" onclick="getCurrentLocation()"><span>🌍 Cliquer pour localiser</span><div id="coordDisplay" class="map-coord"></div></div></div>
+  
+  <!-- Nouveaux champs (remplacent GPS) -->
+  <div class="row-2">
+    <div class="fg"><label class="fl">📏 Métrage total (mts)</label><input type="number" id="totalMeters" step="0.1" placeholder="0.0"></div>
+    <div class="fg"><label class="fl">📐 Av width (mts)</label><input type="number" id="avWidth" step="0.01" placeholder="0.00"></div>
+  </div>
+  <div class="row-2">
+    <div class="fg"><label class="fl">📅 Date Received</label><input type="date" id="dateReceived"></div>
+    <div class="fg"><label class="fl">📉 Left over (mts)</label><input type="number" id="leftOver" step="0.1" placeholder="0.0"></div>
+  </div>
+  
   <div class="fg"><label class="fl">📝 Notes</label><textarea id="notesField" rows="2"></textarea></div>
   <button class="btn btn-p" onclick="saveItem()">✅ Enregistrer l'objet</button>
 </div></div></div>
@@ -216,22 +222,77 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 
 <script>
 // ==================== DATABASE ====================
-let db = { u: [], i: [], customers: [], premRequests: [] };
+let db = { u: [], i: [], customers: [], history: [], backups: [] };
+let backupCounter = 0;
+
 function loadDB() {
   const data = localStorage.getItem('aiza_db');
-  if(data) { db = JSON.parse(data); if(!db.customers) db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"]; if(!db.premRequests) db.premRequests = []; if(!db.i) db.i = []; if(!db.u) db.u = []; saveDB(); }
-  else { initDemo(); }
+  if(data) { 
+    db = JSON.parse(data); 
+    if(!db.customers) db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
+    if(!db.history) db.history = [];
+    if(!db.backups) db.backups = [];
+    if(!db.i) db.i = [];
+    if(!db.u) db.u = [];
+    saveDB(); 
+  } else { 
+    initDemo(); 
+  }
 }
 function saveDB() { localStorage.setItem('aiza_db', JSON.stringify(db)); }
+
+function addHistory(action, details) {
+  db.history.unshift({
+    id: 'h'+Date.now(),
+    userId: currentUser?.id,
+    userName: currentUser?.name,
+    action: action,
+    details: details,
+    timestamp: new Date().toISOString()
+  });
+  if(db.history.length > 200) db.history = db.history.slice(0, 200);
+  saveDB();
+}
+
+function backupDB() {
+  const backup = {
+    id: 'bkp_' + Date.now(),
+    timestamp: new Date().toISOString(),
+    data: JSON.parse(JSON.stringify(db))
+  };
+  db.backups.unshift(backup);
+  if(db.backups.length > 10) db.backups = db.backups.slice(0, 10);
+  saveDB();
+  toast('Sauvegarde créée !','ok');
+  addHistory('BACKUP_CREATED', `Sauvegarde ${backup.id}`);
+}
+
+function restoreBackup(backupId) {
+  const backup = db.backups.find(b => b.id === backupId);
+  if(!backup) { toast('Backup introuvable','no'); return; }
+  if(confirm('Restaurer cette sauvegarde ? Les données actuelles seront perdues.')) {
+    db = backup.data;
+    if(!db.customers) db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
+    if(!db.history) db.history = [];
+    if(!db.backups) db.backups = [];
+    saveDB();
+    addHistory('RESTORE', `Restauration depuis ${backup.id}`);
+    toast('Base restaurée !','ok');
+    if(currentUser) { renderHome(); renderItems(); if(currentUser.role==='admin') renderAdmin(); }
+    else location.reload();
+  }
+}
+
 function initDemo() {
   if(db.u.length === 0) {
     db.u = [
-      { id: 'admin1', name: 'Andry Ratolojahary', email: 'lectratana@gmail.com', pw: 'Aiza@dmin2024', role: 'admin' },
-      { id: 'user1', name: 'Utilisateur Test', email: 'user@test.com', pw: '123456', role: 'user' }
+      { id: 'admin1', name: 'Andry Ratolojahary', email: 'lectratana@gmail.com', pw: 'Aiza@dmin2024', role: 'admin', lastLogin: new Date().toISOString() },
+      { id: 'user1', name: 'Utilisateur Test', email: 'user@test.com', pw: '123456', role: 'user', lastLogin: new Date().toISOString() }
     ];
     db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
     db.i = [];
-    db.premRequests = [];
+    db.history = [];
+    db.backups = [];
     saveDB();
   }
 }
@@ -239,49 +300,40 @@ function initDemo() {
 let currentUser = null;
 let currentEditId = null;
 let tempPhotos = [null,null,null,null,null];
-let currentLocation = null;
-let currentFilter = 'all';
 
 // ==================== AUTH ====================
 function swT(t){ document.getElementById('tL').classList.toggle('on',t==='l'); document.getElementById('tR').classList.toggle('on',t==='r'); document.getElementById('fL').style.display=t==='l'?'block':'none'; document.getElementById('fR').style.display=t==='r'?'block':'none'; }
-function loginSubmit(e){ e.preventDefault(); const em=document.getElementById('le').value.trim(), pw=document.getElementById('lp').value; const u=db.u.find(x=>x.email===em && x.pw===pw); if(!u){ toast('Email ou mot de passe incorrect','no'); return false; } currentUser=u; localStorage.setItem('aiza_user',JSON.stringify({id:u.id})); toast('Connexion réussie','ok'); showApp(); return false; }
-function regSubmit(e){ e.preventDefault(); const name=document.getElementById('rn').value.trim(), email=document.getElementById('rem').value.trim(), pw=document.getElementById('rpw').value, pw2=document.getElementById('rpw2').value; if(pw!==pw2){ toast('Mots de passe différents','no'); return false; } if(db.u.find(x=>x.email===email)){ toast('Email déjà utilisé','no'); return false; } const newUser={ id:'u'+Date.now(), name, email, pw, role:'user' }; db.u.push(newUser); saveDB(); currentUser=newUser; localStorage.setItem('aiza_user',JSON.stringify({id:newUser.id})); toast('Inscription réussie','ok'); showApp(); return false; }
-function logout(){ currentUser=null; localStorage.removeItem('aiza_user'); document.getElementById('hdr').classList.remove('v'); document.getElementById('bnav').classList.remove('v'); document.getElementById('pgL').classList.add('on'); document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); }
-function showApp(){ document.getElementById('pgL').classList.remove('on'); document.getElementById('hdr').classList.add('v'); document.getElementById('bnav').classList.add('v'); updateUI(); go('home'); if(currentUser?.role==='admin'){ document.getElementById('adminPanelLink').style.display='block'; updateAdminBadge(); } else { document.getElementById('adminPanelLink').style.display='none'; } }
-function updateUI(){ if(currentUser){ document.getElementById('hAv').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prA').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prN').textContent=currentUser.name; document.getElementById('prE').textContent=currentUser.email; document.getElementById('userBadge').innerHTML=currentUser.role==='admin'?'<span class="bp" style="background:gold;color:#333;padding:2px 8px;border-radius:20px;font-size:11px">👑 Admin</span>':'<span class="bf" style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:20px;font-size:11px">👤 User</span>'; } }
+function loginSubmit(e){ e.preventDefault(); const em=document.getElementById('le').value.trim(), pw=document.getElementById('lp').value; const u=db.u.find(x=>x.email===em && x.pw===pw); if(!u){ toast('Email ou mot de passe incorrect','no'); return false; } currentUser=u; u.lastLogin=new Date().toISOString(); saveDB(); localStorage.setItem('aiza_user',JSON.stringify({id:u.id})); addHistory('LOGIN', `${u.name} s'est connecté`); toast('Connexion réussie','ok'); showApp(); return false; }
+function regSubmit(e){ e.preventDefault(); const name=document.getElementById('rn').value.trim(), email=document.getElementById('rem').value.trim(), pw=document.getElementById('rpw').value, pw2=document.getElementById('rpw2').value; if(pw!==pw2){ toast('Mots de passe différents','no'); return false; } if(db.u.find(x=>x.email===email)){ toast('Email déjà utilisé','no'); return false; } const newUser={ id:'u'+Date.now(), name, email, pw, role:'user', lastLogin:new Date().toISOString() }; db.u.push(newUser); saveDB(); currentUser=newUser; localStorage.setItem('aiza_user',JSON.stringify({id:newUser.id})); addHistory('REGISTER', `Nouvel utilisateur: ${name}`); toast('Inscription réussie','ok'); showApp(); return false; }
+function logout(){ addHistory('LOGOUT', `${currentUser?.name} s'est déconnecté`); currentUser=null; localStorage.removeItem('aiza_user'); document.getElementById('hdr').classList.remove('v'); document.getElementById('bnav').classList.remove('v'); document.getElementById('pgL').classList.add('on'); document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); }
+function showApp(){ document.getElementById('pgL').classList.remove('on'); document.getElementById('hdr').classList.add('v'); document.getElementById('bnav').classList.add('v'); updateUI(); go('home'); if(currentUser?.role==='admin'){ document.getElementById('adminPanelLink').style.display='block'; } else { document.getElementById('adminPanelLink').style.display='none'; } }
+function updateUI(){ if(currentUser){ document.getElementById('hAv').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prA').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prN').textContent=currentUser.name; document.getElementById('prE').textContent=currentUser.email; document.getElementById('userBadge').innerHTML=currentUser.role==='admin'?'<span style="background:gold;color:#333;padding:2px 8px;border-radius:20px;font-size:11px">👑 Admin</span>':'<span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:20px;font-size:11px">👤 User</span>'; } }
 function go(page){ document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById(`pg${page.charAt(0).toUpperCase()+page.slice(1)}`).classList.add('on'); if(page==='home') renderHome(); if(page==='items') renderItems(); if(page==='search') doSearch(); if(page==='admin' && currentUser?.role==='admin') renderAdmin(); }
 function renderHome(){ const myItems=db.i.filter(it=>it.uid===currentUser.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5); document.getElementById('wN').innerHTML=`Bonjour ${currentUser.name.split(' ')[0]} 👋`; document.getElementById('recI').innerHTML=myItems.length===0?'<div class="emp">📭 Aucun objet</div>':myItems.map(it=>renderCard(it)).join(''); }
 function renderItems(){ const items=db.i.filter(it=>it.uid===currentUser.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)); document.getElementById('iL').innerHTML=items.length===0?'<div class="emp">📭 Aucun objet</div>':items.map(it=>renderCard(it)).join(''); }
-function renderCard(it){ const photo=it.photos && it.photos[0] ? `<img src="${it.photos[0]}">` : '🧵'; return `<div class="ic" onclick="showDetail('${it.id}')"><div class="ic-t">${photo}</div><div class="ic-i"><h3>${escapeHtml(it.customer)} - ${escapeHtml(it.ocNumber)}</h3><div class="ic-l">🎨 ${escapeHtml(it.color||'-')} | 🧵 ${escapeHtml(it.poFabric||'-')}</div><div class="ic-d">${new Date(it.createdAt).toLocaleDateString()}</div></div><div><button class="ic-b" onclick="event.stopPropagation();editItem('${it.id}')">✏️</button><button class="ic-b" onclick="event.stopPropagation();deleteItem('${it.id}')">🗑️</button></div></div>`; }
-function showDetail(id){ const it=db.i.find(x=>x.id===id); if(!it) return; document.getElementById('dTi').innerHTML=it.customer; let html=it.photos?.length?`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px">${it.photos.map(p=>`<img src="${p}" style="width:100px;height:100px;object-fit:cover;border-radius:8px">`).join('')}</div>`:''; html+=`<div class="df"><strong>Client</strong> ${escapeHtml(it.customer)}</div><div class="df"><strong>Style</strong> ${escapeHtml(it.style)}</div><div class="df"><strong>Color</strong> ${escapeHtml(it.color)}</div><div class="df"><strong>PO Fabric</strong> ${escapeHtml(it.poFabric)}</div><div class="df"><strong>OC Number</strong> ${escapeHtml(it.ocNumber)}</div><div class="df"><strong>📍 Localisation</strong> ${it.location?`${it.location.lat}, ${it.location.lng}`:'Non définie'}</div><div class="df"><strong>📝 Notes</strong> ${escapeHtml(it.notes)}</div><button class="btn btn-p btn-sm" style="margin-top:16px" onclick="closeM('mD');editItem('${it.id}')">✏️ Modifier</button>`; document.getElementById('dBd').innerHTML=html; openM('mD'); }
-function deleteItem(id){ if(confirm('Supprimer ?')){ db.i=db.i.filter(x=>x.id!==id); saveDB(); renderItems(); renderHome(); toast('Supprimé','ok'); } }
-function editItem(id){ const it=db.i.find(x=>x.id===id); if(!it) return; currentEditId=id; document.getElementById('styleField').value=it.style||''; document.getElementById('colorField').value=it.color||''; document.getElementById('poFabric').value=it.poFabric||''; document.getElementById('ocNumber').value=it.ocNumber||''; document.getElementById('notesField').value=it.notes||''; setCustomerSelect(it.customer); tempPhotos=[...it.photos||[], null,null,null,null,null].slice(0,5); currentLocation=it.location||null; document.getElementById('coordDisplay').innerHTML=currentLocation?`📍 ${currentLocation.lat}, ${currentLocation.lng}`:''; renderPhotoGrid(); openM('mA'); }
-function saveItem(){ const customer=document.getElementById('customerSelect').value; const ocNumber=document.getElementById('ocNumber').value.trim(); if(!customer){ toast('Sélectionnez un client','no'); return; } if(!ocNumber){ toast('OC Number requis','no'); return; } const item={ id:currentEditId||('i'+Date.now()), uid:currentUser.id, name:`${customer}-${ocNumber}`, customer, style:document.getElementById('styleField').value, color:document.getElementById('colorField').value, poFabric:document.getElementById('poFabric').value, ocNumber, notes:document.getElementById('notesField').value, location:currentLocation, photos:tempPhotos.filter(p=>p!==null), createdAt:currentEditId?(db.i.find(x=>x.id===currentEditId)?.createdAt||new Date().toISOString()):new Date().toISOString() }; if(currentEditId){ const idx=db.i.findIndex(x=>x.id===currentEditId); if(idx!==-1) db.i[idx]=item; } else { db.i.push(item); } saveDB(); closeM('mA'); resetForm(); renderHome(); renderItems(); toast('Objet enregistré','ok'); currentEditId=null; }
-function resetForm(){ document.getElementById('styleField').value=''; document.getElementById('colorField').value=''; document.getElementById('poFabric').value=''; document.getElementById('ocNumber').value=''; document.getElementById('notesField').value=''; tempPhotos=[null,null,null,null,null]; currentLocation=null; document.getElementById('coordDisplay').innerHTML=''; renderPhotoGrid(); if(db.customers.length) setCustomerSelect(db.customers[0]); }
+function renderCard(it){ const photo=it.photos && it.photos[0] ? `<img src="${it.photos[0]}">` : '🧵'; return `<div class="ic" onclick="showDetail('${it.id}')"><div class="ic-t">${photo}</div><div class="ic-i"><h3>${escapeHtml(it.customer)} - ${escapeHtml(it.ocNumber)}</h3><div class="ic-l">🧵 ${escapeHtml(it.poFabric)} | 🏷️ ${escapeHtml(it.style||'-')}</div><div class="ic-d">📏 ${it.totalMeters||0}m | Reste: ${it.leftOver||0}m</div></div><div><button class="ic-b" onclick="event.stopPropagation();editItem('${it.id}')">✏️</button><button class="ic-b" onclick="event.stopPropagation();deleteItem('${it.id}')">🗑️</button></div></div>`; }
+function showDetail(id){ const it=db.i.find(x=>x.id===id); if(!it) return; document.getElementById('dTi').innerHTML=it.customer; let html=it.photos?.length?`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px">${it.photos.map(p=>`<img src="${p}" style="width:100px;height:100px;object-fit:cover;border-radius:8px">`).join('')}</div>`:''; html+=`<div class="df"><strong>Client</strong> ${escapeHtml(it.customer)}</div><div class="df"><strong>Style</strong> ${escapeHtml(it.style)}</div><div class="df"><strong>Color</strong> ${escapeHtml(it.color)}</div><div class="df"><strong>PO Fabric</strong> ${escapeHtml(it.poFabric)}</div><div class="df"><strong>OC Number</strong> ${escapeHtml(it.ocNumber)}</div><div class="df"><strong>📏 Métrage total</strong> ${it.totalMeters||0} m</div><div class="df"><strong>📐 Av width</strong> ${it.avWidth||0} m</div><div class="df"><strong>📅 Date Received</strong> ${it.dateReceived || '-'}</div><div class="df"><strong>📉 Left over</strong> ${it.leftOver||0} m</div><div class="df"><strong>📝 Notes</strong> ${escapeHtml(it.notes)}</div><button class="btn btn-p btn-sm" style="margin-top:16px" onclick="closeM('mD');editItem('${it.id}')">✏️ Modifier</button>`; document.getElementById('dBd').innerHTML=html; openM('mD'); }
+function deleteItem(id){ if(confirm('Supprimer ?')){ db.i=db.i.filter(x=>x.id!==id); saveDB(); addHistory('DELETE_ITEM', `Objet supprimé: ${id}`); renderItems(); renderHome(); toast('Supprimé','ok'); } }
+function editItem(id){ const it=db.i.find(x=>x.id===id); if(!it) return; currentEditId=id; document.getElementById('styleField').value=it.style||''; document.getElementById('colorField').value=it.color||''; document.getElementById('poFabric').value=it.poFabric||''; document.getElementById('ocNumber').value=it.ocNumber||''; document.getElementById('totalMeters').value=it.totalMeters||''; document.getElementById('avWidth').value=it.avWidth||''; document.getElementById('dateReceived').value=it.dateReceived||''; document.getElementById('leftOver').value=it.leftOver||''; document.getElementById('notesField').value=it.notes||''; setCustomerSelect(it.customer); tempPhotos=[...it.photos||[], null,null,null,null,null].slice(0,5); renderPhotoGrid(); openM('mA'); }
+function saveItem(){ const customer=document.getElementById('customerSelect').value; const poFabric=document.getElementById('poFabric').value.trim(); const ocNumber=document.getElementById('ocNumber').value.trim(); if(!customer){ toast('Sélectionnez un client','no'); return; } if(!poFabric){ toast('PO Fabric requis','no'); return; } if(!ocNumber){ toast('OC Number requis','no'); return; } const item={ id:currentEditId||('i'+Date.now()), uid:currentUser.id, name:`${customer}-${ocNumber}`, customer, style:document.getElementById('styleField').value, color:document.getElementById('colorField').value, poFabric, ocNumber, totalMeters:parseFloat(document.getElementById('totalMeters').value)||0, avWidth:parseFloat(document.getElementById('avWidth').value)||0, dateReceived:document.getElementById('dateReceived').value, leftOver:parseFloat(document.getElementById('leftOver').value)||0, notes:document.getElementById('notesField').value, photos:tempPhotos.filter(p=>p!==null), createdAt:currentEditId?(db.i.find(x=>x.id===currentEditId)?.createdAt||new Date().toISOString()):new Date().toISOString() }; if(currentEditId){ const idx=db.i.findIndex(x=>x.id===currentEditId); if(idx!==-1) db.i[idx]=item; addHistory('EDIT_ITEM', `Modifié: ${item.customer} - ${item.ocNumber}`); } else { db.i.push(item); addHistory('ADD_ITEM', `Ajouté: ${item.customer} - ${item.ocNumber}`); } saveDB(); closeM('mA'); resetForm(); renderHome(); renderItems(); toast('Objet enregistré','ok'); currentEditId=null; }
+function resetForm(){ document.getElementById('styleField').value=''; document.getElementById('colorField').value=''; document.getElementById('poFabric').value=''; document.getElementById('ocNumber').value=''; document.getElementById('totalMeters').value=''; document.getElementById('avWidth').value=''; document.getElementById('dateReceived').value=''; document.getElementById('leftOver').value=''; document.getElementById('notesField').value=''; tempPhotos=[null,null,null,null,null]; renderPhotoGrid(); if(db.customers.length) setCustomerSelect(db.customers[0]); }
 function openAdd(){ currentEditId=null; resetForm(); openM('mA'); }
 // CUSTOMER
 function refreshCustomers(){ const sel=document.getElementById('customerSelect'); sel.innerHTML=''; db.customers.forEach(c=>{ const opt=document.createElement('option'); opt.value=c; opt.textContent=c; sel.appendChild(opt); }); }
 function setCustomerSelect(val){ const sel=document.getElementById('customerSelect'); for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===val){ sel.selectedIndex=i; break; } }
 function openAddCustomer(){ openM('mCustomer'); document.getElementById('newCustomerName').value=''; }
-function addCustomer(){ const name=document.getElementById('newCustomerName').value.trim(); if(!name) return; if(!db.customers.includes(name)){ db.customers.push(name); saveDB(); refreshCustomers(); setCustomerSelect(name); } closeM('mCustomer'); toast('Client ajouté','ok'); }
-function deleteCurrentCustomer(){ const val=document.getElementById('customerSelect').value; if(db.customers.length<=1){ toast('Gardez au moins un client','no'); return; } db.customers=db.customers.filter(c=>c!==val); saveDB(); refreshCustomers(); toast('Client supprimé','ok'); }
+function addCustomer(){ const name=document.getElementById('newCustomerName').value.trim(); if(!name) return; if(!db.customers.includes(name)){ db.customers.push(name); saveDB(); addHistory('ADD_CUSTOMER', `Client ajouté: ${name}`); refreshCustomers(); setCustomerSelect(name); } closeM('mCustomer'); toast('Client ajouté','ok'); }
+function deleteCurrentCustomer(){ const val=document.getElementById('customerSelect').value; if(db.customers.length<=1){ toast('Gardez au moins un client','no'); return; } db.customers=db.customers.filter(c=>c!==val); saveDB(); addHistory('DELETE_CUSTOMER', `Client supprimé: ${val}`); refreshCustomers(); toast('Client supprimé','ok'); }
 // PHOTOS
 function openCamera(){ const input=document.createElement('input'); input.type='file'; input.accept='image/*'; input.capture='environment'; input.onchange=e=>handlePhotos(e); input.click(); }
 function handlePhotos(e){ const files=e.target.files; if(!files) return; for(let i=0;i<files.length && i<5;i++){ const f=files[i]; if(f.size>5*1024*1024) continue; const reader=new FileReader(); reader.onload=ev=>{ const slot=tempPhotos.findIndex(p=>p===null); if(slot!==-1) tempPhotos[slot]=ev.target.result; renderPhotoGrid(); }; reader.readAsDataURL(f); } e.target.value=''; }
 function renderPhotoGrid(){ let html=''; for(let i=0;i<5;i++){ if(tempPhotos[i]) html+=`<div class="phs"><img src="${tempPhotos[i]}"><button class="pr" onclick="event.stopPropagation();removePhoto(${i})">✕</button></div>`; else html+=`<div class="phs" onclick="document.getElementById('pF').click()"><span>📷</span><span>Photo ${i+1}</span></div>`; } document.getElementById('pG').innerHTML=html; document.getElementById('pC').innerHTML=`${tempPhotos.filter(p=>p!==null).length}/5 photos`; }
 function removePhoto(idx){ tempPhotos[idx]=null; renderPhotoGrid(); }
-// GEOLOCATION
-function getCurrentLocation(){ if(!navigator.geolocation){ toast('GPS non supporté','no'); return; } navigator.geolocation.getCurrentPosition(pos=>{ currentLocation={ lat:pos.coords.latitude, lng:pos.coords.longitude }; document.getElementById('coordDisplay').innerHTML=`📍 ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)}`; toast('Position enregistrée','ok'); }, err=>toast('Erreur GPS','no')); }
-// SEARCH
-function doSearch(){ const kw=document.getElementById('sI').value.trim().toLowerCase(); let items=db.i.filter(it=>it.uid===currentUser.id); if(kw) items=items.filter(it=> (it.customer?.toLowerCase().includes(kw)) || (it.ocNumber?.toLowerCase().includes(kw)) || (it.style?.toLowerCase().includes(kw)) || (it.color?.toLowerCase().includes(kw)) ); document.getElementById('sR').innerHTML=items.length===0?'<div class="emp">🔍 Aucun résultat</div>':items.map(it=>renderCard(it)).join(''); }
-function setFilter(f,el){ currentFilter=f; document.querySelectorAll('.sf').forEach(x=>x.classList.remove('on')); el.classList.add('on'); doSearch(); }
+// SEARCH (PO Fabric, Style, OC Number)
+function doSearch(){ const kw=document.getElementById('sI').value.trim().toLowerCase(); let items=db.i.filter(it=>it.uid===currentUser.id); if(kw) items=items.filter(it=> (it.poFabric?.toLowerCase().includes(kw)) || (it.style?.toLowerCase().includes(kw)) || (it.ocNumber?.toLowerCase().includes(kw)) ); document.getElementById('sR').innerHTML=items.length===0?'<div class="emp">🔍 Aucun résultat</div>':items.map(it=>renderCard(it)).join(''); }
 // ADMIN
-function renderAdmin(){ if(!currentUser || currentUser.role!=='admin') return; document.getElementById('statUsers').textContent=db.u.length; document.getElementById('statItems').textContent=db.i.length; const pendingReqs=db.premRequests.filter(r=>r.status==='pending').length; document.getElementById('reqBadge').style.display=pendingReqs?'inline-flex':'none'; document.getElementById('reqBadge').textContent=pendingReqs; document.getElementById('adminUsers').innerHTML=db.u.map(u=>`<div class="uli"><div class="ulv" style="background:${u.role==='admin'?'gold':'var(--c1)'}">${u.name.charAt(0)}</div><div><strong>${escapeHtml(u.name)}</strong> ${u.role==='admin'?'👑':''}<br><small>${escapeHtml(u.email)}</small></div></div>`).join(''); document.getElementById('adminItems').innerHTML=db.i.map(it=>`<div class="uli"><div>📦</div><div><strong>${escapeHtml(it.customer)} - ${escapeHtml(it.ocNumber)}</strong><br><small>par ${db.u.find(u=>u.id===it.uid)?.name||'?'}</small></div></div>`).join('')||'<div class="emp">Aucun objet</div>'; document.getElementById('adminRequests').innerHTML=db.premRequests.map(r=>`<div class="req-card"><strong>${escapeHtml(r.userName)}</strong><div>💰 Demande Premium</div><div>Réf: ${escapeHtml(r.ref)}</div><div class="req-acts"><button class="btn btn-ok btn-sm" onclick="approveRequest('${r.id}')">✅ Approuver</button><button class="btn btn-no btn-sm" onclick="rejectRequest('${r.id}')">❌ Rejeter</button></div></div>`).join('')||'<div class="emp">Aucune demande</div>'; updateAdminBadge(); }
-function adminTab(tab,el){ document.querySelectorAll('.at').forEach(x=>x.classList.remove('on')); el.classList.add('on'); document.getElementById('adminUsers').style.display=tab==='users'?'block':'none'; document.getElementById('adminItems').style.display=tab==='items'?'block':'none'; document.getElementById('adminRequests').style.display=tab==='requests'?'block':'none'; }
-function approveRequest(id){ const req=db.premRequests.find(r=>r.id===id); if(req){ req.status='approved'; saveDB(); toast('Demande approuvée','ok'); renderAdmin(); } }
-function rejectRequest(id){ db.premRequests=db.premRequests.filter(r=>r.id!==id); saveDB(); toast('Demande rejetée','no'); renderAdmin(); }
-function updateAdminBadge(){ const pending=db.premRequests.filter(r=>r.status==='pending').length; const bell=document.getElementById('bellBtn'); const bellC=document.getElementById('bellC'); if(currentUser?.role==='admin'){ bell.style.display=pending?'block':'none'; bellC.textContent=pending; } }
-function resetAllData(){ if(confirm('⚠️ Supprimer TOUTES les données ? Irréversible !')){ localStorage.removeItem('aiza_db'); location.reload(); } }
+function renderAdmin(){ if(!currentUser || currentUser.role!=='admin') return; document.getElementById('statUsers').textContent=db.u.length; document.getElementById('statItems').textContent=db.i.length; document.getElementById('adminUsers').innerHTML=db.u.map(u=>`<div class="uli"><div class="ulv" style="background:${u.role==='admin'?'gold':'var(--c1)'}">${u.name.charAt(0)}</div><div><strong>${escapeHtml(u.name)}</strong> ${u.role==='admin'?'👑':''}<br><small>${escapeHtml(u.email)} | Dernière connexion: ${u.lastLogin?new Date(u.lastLogin).toLocaleString():'-'}</small></div></div>`).join(''); document.getElementById('adminHistory').innerHTML=db.history.slice(0,50).map(h=>`<div class="history-item"><strong>${h.action}</strong><br><small>${escapeHtml(h.userName||'Système')} - ${new Date(h.timestamp).toLocaleString()}</small><br><span style="font-size:11px;color:var(--t2)">${escapeHtml(h.details)}</span></div>`).join('')||'<div class="emp">Aucun historique</div>'; document.getElementById('adminBackup').innerHTML=`<button class="backup-btn" onclick="backupDB()">💾 Créer une sauvegarde</button><div style="margin-top:12px">${db.backups.map(b=>`<div class="history-item" style="display:flex;justify-content:space-between;align-items:center"><span>📀 ${new Date(b.timestamp).toLocaleString()}</span><button class="btn-sm" style="background:var(--c1);color:#fff;padding:4px 8px" onclick="restoreBackup('${b.id}')">Restaurer</button></div>`).join('')||'<div class="emp">Aucune sauvegarde</div>'}</div>`; }
+function adminTab(tab,el){ document.querySelectorAll('.at').forEach(x=>x.classList.remove('on')); el.classList.add('on'); document.getElementById('adminUsers').style.display=tab==='users'?'block':'none'; document.getElementById('adminHistory').style.display=tab==='history'?'block':'none'; document.getElementById('adminBackup').style.display=tab==='backup'?'block':'none'; }
 function toast(msg,type){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=type==='ok'?'var(--ok)':type==='no'?'var(--no)':'var(--warn)'; t.style.display='block'; setTimeout(()=>t.style.display='none',2500); }
 function openM(id){ document.getElementById(id).classList.add('v'); document.body.style.overflow='hidden'; }
 function closeM(id){ document.getElementById(id).classList.remove('v'); document.body.style.overflow=''; }
