@@ -18,7 +18,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 .btn-p{background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff}
 .btn-ok{background:var(--ok);color:#fff}
 .btn-no{background:var(--no);color:#fff}
-.btn-warn{background:var(--warn);color:#333}
 .btn-sm{padding:8px 14px;font-size:13px;width:auto}
 .btn-ghost{background:var(--bg);color:var(--txt);border:2px solid var(--bd)}
 .splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,var(--c1),#4834D4);display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;transition:opacity .5s}
@@ -100,6 +99,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 .history-item{background:#f8f9fa;border-radius:var(--rs);padding:10px;margin-bottom:8px;font-size:12px;border-left:3px solid var(--c1)}
 .backup-btn{background:var(--ok);color:#fff;border:none;border-radius:8px;padding:10px;margin-top:10px;width:100%;font-weight:600}
 .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin-badge{background:linear-gradient(135deg,#FFD700,#FFA500);color:#333;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;margin-left:6px}
 </style>
 </head>
 <body>
@@ -110,20 +110,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 </div>
 <div id="toast"></div>
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE - No credentials displayed -->
 <div class="pg-l" id="pgL">
   <div class="lg-h"><div style="font-size:42px">📦</div><h1>Aiza</h1><p>Gestion textile & matières</p></div>
   <div class="lg-b">
     <div class="lg-tabs"><button class="lg-tab on" id="tL" onclick="swT('l')">Connexion</button><button class="lg-tab" id="tR" onclick="swT('r')">Inscription</button></div>
     <form id="fL" onsubmit="return loginSubmit(event)">
-      <div class="fg"><label class="fl">Email</label><input type="email" id="le" placeholder="votre@email.com" required></div>
-      <div class="fg"><label class="fl">Mot de passe</label><input type="password" id="lp" placeholder="Mot de passe" required></div>
+      <div class="fg"><label class="fl">Email</label><input type="email" id="le" placeholder="votre@email.com" required autocomplete="off"></div>
+      <div class="fg"><label class="fl">Mot de passe</label><input type="password" id="lp" placeholder="Mot de passe" required autocomplete="off"></div>
       <button class="btn btn-p">🔑 Se connecter</button>
-      <div class="fg" style="margin-top:12px;background:#F0F2F5;padding:12px;border-radius:12px;font-size:12px">
-        <strong>📋 Comptes :</strong><br>
-        👑 Admin: lectratana@gmail.com / Aiza@dmin2024<br>
-        👤 User: user@test.com / 123456
-      </div>
     </form>
     <form id="fR" style="display:none" onsubmit="return regSubmit(event)">
       <div class="fg"><label class="fl">Nom complet</label><input type="text" id="rn" required></div>
@@ -181,14 +176,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
   <div id="adminPanelLink" style="margin-top:12px;display:none"><button class="btn btn-ghost" onclick="go('admin')">⚙️ Administration</button></div>
 </div>
 
-<!-- PAGE ADMIN -->
+<!-- PAGE ADMIN (Admin only) -->
 <div class="pg" id="pgAdmin">
   <h2 style="font-size:20px;font-weight:800;margin-bottom:14px">⚙️ Administration</h2>
   <div class="asg"><div class="asc"><div class="an" id="statUsers">0</div><div class="al">Utilisateurs</div></div><div class="asc"><div class="an" id="statItems">0</div><div class="al">Objets</div></div></div>
-  <div class="atb"><button class="at on" onclick="adminTab('users',this)">Utilisateurs</button><button class="at" onclick="adminTab('history',this)">Historique</button><button class="at" onclick="adminTab('backup',this)">Backup</button></div>
+  <div class="atb"><button class="at on" onclick="adminTab('users',this)">Utilisateurs</button><button class="at" onclick="adminTab('allItems',this)">Tous objets</button><button class="at" onclick="adminTab('history',this)">Historique</button><button class="at" onclick="adminTab('backup',this)">Backup</button></div>
   <div id="adminUsers"></div>
+  <div id="adminAllItems" style="display:none"></div>
   <div id="adminHistory" style="display:none"></div>
   <div id="adminBackup" style="display:none"></div>
+  <div class="reset-zone"><h4 style="color:var(--no)">⚠️ Zone dangereuse</h4><p>Réinitialiser supprime toutes les données</p><button class="btn btn-no btn-sm" onclick="resetAllData()">🗑️ Réinitialiser l'application</button></div>
 </div>
 
 <!-- ADD MODAL -->
@@ -199,8 +196,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
   <div class="fg"><label class="fl">🎨 Color</label><input type="text" id="colorField" placeholder="Ex: Bleu marine"></div>
   <div class="fg"><label class="fl">🧵 PO Fabric *</label><input type="text" id="poFabric" placeholder="Référence tissu" required></div>
   <div class="fg"><label class="fl">🔢 OC Number *</label><input type="text" id="ocNumber" placeholder="Numéro OC" required></div>
-  
-  <!-- Nouveaux champs (remplacent GPS) -->
   <div class="row-2">
     <div class="fg"><label class="fl">📏 Métrage total (mts)</label><input type="number" id="totalMeters" step="0.1" placeholder="0.0"></div>
     <div class="fg"><label class="fl">📐 Av width (mts)</label><input type="number" id="avWidth" step="0.01" placeholder="0.00"></div>
@@ -209,7 +204,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
     <div class="fg"><label class="fl">📅 Date Received</label><input type="date" id="dateReceived"></div>
     <div class="fg"><label class="fl">📉 Left over (mts)</label><input type="number" id="leftOver" step="0.1" placeholder="0.0"></div>
   </div>
-  
   <div class="fg"><label class="fl">📝 Notes</label><textarea id="notesField" rows="2"></textarea></div>
   <button class="btn btn-p" onclick="saveItem()">✅ Enregistrer l'objet</button>
 </div></div></div>
@@ -223,7 +217,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 0 
 <script>
 // ==================== DATABASE ====================
 let db = { u: [], i: [], customers: [], history: [], backups: [] };
-let backupCounter = 0;
 
 function loadDB() {
   const data = localStorage.getItem('aiza_db');
@@ -284,17 +277,16 @@ function restoreBackup(backupId) {
 }
 
 function initDemo() {
-  if(db.u.length === 0) {
-    db.u = [
-      { id: 'admin1', name: 'Andry Ratolojahary', email: 'lectratana@gmail.com', pw: 'Aiza@dmin2024', role: 'admin', lastLogin: new Date().toISOString() },
-      { id: 'user1', name: 'Utilisateur Test', email: 'user@test.com', pw: '123456', role: 'user', lastLogin: new Date().toISOString() }
-    ];
-    db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
-    db.i = [];
-    db.history = [];
-    db.backups = [];
-    saveDB();
-  }
+  // Only two accounts: Admin and User (no credentials displayed in UI)
+  db.u = [
+    { id: 'admin1', name: 'Administrateur', email: 'admin@aiza.com', pw: 'Admin@2024', role: 'admin', lastLogin: new Date().toISOString() },
+    { id: 'user1', name: 'Utilisateur', email: 'user2026@gmail.com', pw: 'user2026', role: 'user', lastLogin: new Date().toISOString() }
+  ];
+  db.customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
+  db.i = [];
+  db.history = [];
+  db.backups = [];
+  saveDB();
 }
 
 let currentUser = null;
@@ -304,10 +296,14 @@ let tempPhotos = [null,null,null,null,null];
 // ==================== AUTH ====================
 function swT(t){ document.getElementById('tL').classList.toggle('on',t==='l'); document.getElementById('tR').classList.toggle('on',t==='r'); document.getElementById('fL').style.display=t==='l'?'block':'none'; document.getElementById('fR').style.display=t==='r'?'block':'none'; }
 function loginSubmit(e){ e.preventDefault(); const em=document.getElementById('le').value.trim(), pw=document.getElementById('lp').value; const u=db.u.find(x=>x.email===em && x.pw===pw); if(!u){ toast('Email ou mot de passe incorrect','no'); return false; } currentUser=u; u.lastLogin=new Date().toISOString(); saveDB(); localStorage.setItem('aiza_user',JSON.stringify({id:u.id})); addHistory('LOGIN', `${u.name} s'est connecté`); toast('Connexion réussie','ok'); showApp(); return false; }
-function regSubmit(e){ e.preventDefault(); const name=document.getElementById('rn').value.trim(), email=document.getElementById('rem').value.trim(), pw=document.getElementById('rpw').value, pw2=document.getElementById('rpw2').value; if(pw!==pw2){ toast('Mots de passe différents','no'); return false; } if(db.u.find(x=>x.email===email)){ toast('Email déjà utilisé','no'); return false; } const newUser={ id:'u'+Date.now(), name, email, pw, role:'user', lastLogin:new Date().toISOString() }; db.u.push(newUser); saveDB(); currentUser=newUser; localStorage.setItem('aiza_user',JSON.stringify({id:newUser.id})); addHistory('REGISTER', `Nouvel utilisateur: ${name}`); toast('Inscription réussie','ok'); showApp(); return false; }
+function regSubmit(e){ 
+  e.preventDefault(); 
+  toast('Inscription désactivée - Contactez l\'administrateur','no'); 
+  return false; 
+}
 function logout(){ addHistory('LOGOUT', `${currentUser?.name} s'est déconnecté`); currentUser=null; localStorage.removeItem('aiza_user'); document.getElementById('hdr').classList.remove('v'); document.getElementById('bnav').classList.remove('v'); document.getElementById('pgL').classList.add('on'); document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); }
 function showApp(){ document.getElementById('pgL').classList.remove('on'); document.getElementById('hdr').classList.add('v'); document.getElementById('bnav').classList.add('v'); updateUI(); go('home'); if(currentUser?.role==='admin'){ document.getElementById('adminPanelLink').style.display='block'; } else { document.getElementById('adminPanelLink').style.display='none'; } }
-function updateUI(){ if(currentUser){ document.getElementById('hAv').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prA').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prN').textContent=currentUser.name; document.getElementById('prE').textContent=currentUser.email; document.getElementById('userBadge').innerHTML=currentUser.role==='admin'?'<span style="background:gold;color:#333;padding:2px 8px;border-radius:20px;font-size:11px">👑 Admin</span>':'<span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:20px;font-size:11px">👤 User</span>'; } }
+function updateUI(){ if(currentUser){ document.getElementById('hAv').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prA').textContent=currentUser.name.charAt(0).toUpperCase(); document.getElementById('prN').textContent=currentUser.name; document.getElementById('prE').textContent=currentUser.email; document.getElementById('userBadge').innerHTML=currentUser.role==='admin'?'<span class="admin-badge">👑 ADMIN</span>':'<span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:20px;font-size:11px">👤 USER</span>'; } }
 function go(page){ document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById(`pg${page.charAt(0).toUpperCase()+page.slice(1)}`).classList.add('on'); if(page==='home') renderHome(); if(page==='items') renderItems(); if(page==='search') doSearch(); if(page==='admin' && currentUser?.role==='admin') renderAdmin(); }
 function renderHome(){ const myItems=db.i.filter(it=>it.uid===currentUser.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5); document.getElementById('wN').innerHTML=`Bonjour ${currentUser.name.split(' ')[0]} 👋`; document.getElementById('recI').innerHTML=myItems.length===0?'<div class="emp">📭 Aucun objet</div>':myItems.map(it=>renderCard(it)).join(''); }
 function renderItems(){ const items=db.i.filter(it=>it.uid===currentUser.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)); document.getElementById('iL').innerHTML=items.length===0?'<div class="emp">📭 Aucun objet</div>':items.map(it=>renderCard(it)).join(''); }
@@ -318,22 +314,21 @@ function editItem(id){ const it=db.i.find(x=>x.id===id); if(!it) return; current
 function saveItem(){ const customer=document.getElementById('customerSelect').value; const poFabric=document.getElementById('poFabric').value.trim(); const ocNumber=document.getElementById('ocNumber').value.trim(); if(!customer){ toast('Sélectionnez un client','no'); return; } if(!poFabric){ toast('PO Fabric requis','no'); return; } if(!ocNumber){ toast('OC Number requis','no'); return; } const item={ id:currentEditId||('i'+Date.now()), uid:currentUser.id, name:`${customer}-${ocNumber}`, customer, style:document.getElementById('styleField').value, color:document.getElementById('colorField').value, poFabric, ocNumber, totalMeters:parseFloat(document.getElementById('totalMeters').value)||0, avWidth:parseFloat(document.getElementById('avWidth').value)||0, dateReceived:document.getElementById('dateReceived').value, leftOver:parseFloat(document.getElementById('leftOver').value)||0, notes:document.getElementById('notesField').value, photos:tempPhotos.filter(p=>p!==null), createdAt:currentEditId?(db.i.find(x=>x.id===currentEditId)?.createdAt||new Date().toISOString()):new Date().toISOString() }; if(currentEditId){ const idx=db.i.findIndex(x=>x.id===currentEditId); if(idx!==-1) db.i[idx]=item; addHistory('EDIT_ITEM', `Modifié: ${item.customer} - ${item.ocNumber}`); } else { db.i.push(item); addHistory('ADD_ITEM', `Ajouté: ${item.customer} - ${item.ocNumber}`); } saveDB(); closeM('mA'); resetForm(); renderHome(); renderItems(); toast('Objet enregistré','ok'); currentEditId=null; }
 function resetForm(){ document.getElementById('styleField').value=''; document.getElementById('colorField').value=''; document.getElementById('poFabric').value=''; document.getElementById('ocNumber').value=''; document.getElementById('totalMeters').value=''; document.getElementById('avWidth').value=''; document.getElementById('dateReceived').value=''; document.getElementById('leftOver').value=''; document.getElementById('notesField').value=''; tempPhotos=[null,null,null,null,null]; renderPhotoGrid(); if(db.customers.length) setCustomerSelect(db.customers[0]); }
 function openAdd(){ currentEditId=null; resetForm(); openM('mA'); }
-// CUSTOMER
 function refreshCustomers(){ const sel=document.getElementById('customerSelect'); sel.innerHTML=''; db.customers.forEach(c=>{ const opt=document.createElement('option'); opt.value=c; opt.textContent=c; sel.appendChild(opt); }); }
 function setCustomerSelect(val){ const sel=document.getElementById('customerSelect'); for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===val){ sel.selectedIndex=i; break; } }
 function openAddCustomer(){ openM('mCustomer'); document.getElementById('newCustomerName').value=''; }
 function addCustomer(){ const name=document.getElementById('newCustomerName').value.trim(); if(!name) return; if(!db.customers.includes(name)){ db.customers.push(name); saveDB(); addHistory('ADD_CUSTOMER', `Client ajouté: ${name}`); refreshCustomers(); setCustomerSelect(name); } closeM('mCustomer'); toast('Client ajouté','ok'); }
 function deleteCurrentCustomer(){ const val=document.getElementById('customerSelect').value; if(db.customers.length<=1){ toast('Gardez au moins un client','no'); return; } db.customers=db.customers.filter(c=>c!==val); saveDB(); addHistory('DELETE_CUSTOMER', `Client supprimé: ${val}`); refreshCustomers(); toast('Client supprimé','ok'); }
-// PHOTOS
 function openCamera(){ const input=document.createElement('input'); input.type='file'; input.accept='image/*'; input.capture='environment'; input.onchange=e=>handlePhotos(e); input.click(); }
 function handlePhotos(e){ const files=e.target.files; if(!files) return; for(let i=0;i<files.length && i<5;i++){ const f=files[i]; if(f.size>5*1024*1024) continue; const reader=new FileReader(); reader.onload=ev=>{ const slot=tempPhotos.findIndex(p=>p===null); if(slot!==-1) tempPhotos[slot]=ev.target.result; renderPhotoGrid(); }; reader.readAsDataURL(f); } e.target.value=''; }
 function renderPhotoGrid(){ let html=''; for(let i=0;i<5;i++){ if(tempPhotos[i]) html+=`<div class="phs"><img src="${tempPhotos[i]}"><button class="pr" onclick="event.stopPropagation();removePhoto(${i})">✕</button></div>`; else html+=`<div class="phs" onclick="document.getElementById('pF').click()"><span>📷</span><span>Photo ${i+1}</span></div>`; } document.getElementById('pG').innerHTML=html; document.getElementById('pC').innerHTML=`${tempPhotos.filter(p=>p!==null).length}/5 photos`; }
 function removePhoto(idx){ tempPhotos[idx]=null; renderPhotoGrid(); }
 // SEARCH (PO Fabric, Style, OC Number)
 function doSearch(){ const kw=document.getElementById('sI').value.trim().toLowerCase(); let items=db.i.filter(it=>it.uid===currentUser.id); if(kw) items=items.filter(it=> (it.poFabric?.toLowerCase().includes(kw)) || (it.style?.toLowerCase().includes(kw)) || (it.ocNumber?.toLowerCase().includes(kw)) ); document.getElementById('sR').innerHTML=items.length===0?'<div class="emp">🔍 Aucun résultat</div>':items.map(it=>renderCard(it)).join(''); }
-// ADMIN
-function renderAdmin(){ if(!currentUser || currentUser.role!=='admin') return; document.getElementById('statUsers').textContent=db.u.length; document.getElementById('statItems').textContent=db.i.length; document.getElementById('adminUsers').innerHTML=db.u.map(u=>`<div class="uli"><div class="ulv" style="background:${u.role==='admin'?'gold':'var(--c1)'}">${u.name.charAt(0)}</div><div><strong>${escapeHtml(u.name)}</strong> ${u.role==='admin'?'👑':''}<br><small>${escapeHtml(u.email)} | Dernière connexion: ${u.lastLogin?new Date(u.lastLogin).toLocaleString():'-'}</small></div></div>`).join(''); document.getElementById('adminHistory').innerHTML=db.history.slice(0,50).map(h=>`<div class="history-item"><strong>${h.action}</strong><br><small>${escapeHtml(h.userName||'Système')} - ${new Date(h.timestamp).toLocaleString()}</small><br><span style="font-size:11px;color:var(--t2)">${escapeHtml(h.details)}</span></div>`).join('')||'<div class="emp">Aucun historique</div>'; document.getElementById('adminBackup').innerHTML=`<button class="backup-btn" onclick="backupDB()">💾 Créer une sauvegarde</button><div style="margin-top:12px">${db.backups.map(b=>`<div class="history-item" style="display:flex;justify-content:space-between;align-items:center"><span>📀 ${new Date(b.timestamp).toLocaleString()}</span><button class="btn-sm" style="background:var(--c1);color:#fff;padding:4px 8px" onclick="restoreBackup('${b.id}')">Restaurer</button></div>`).join('')||'<div class="emp">Aucune sauvegarde</div>'}</div>`; }
-function adminTab(tab,el){ document.querySelectorAll('.at').forEach(x=>x.classList.remove('on')); el.classList.add('on'); document.getElementById('adminUsers').style.display=tab==='users'?'block':'none'; document.getElementById('adminHistory').style.display=tab==='history'?'block':'none'; document.getElementById('adminBackup').style.display=tab==='backup'?'block':'none'; }
+// ADMIN (full access)
+function renderAdmin(){ if(!currentUser || currentUser.role!=='admin') return; document.getElementById('statUsers').textContent=db.u.length; document.getElementById('statItems').textContent=db.i.length; document.getElementById('adminUsers').innerHTML=db.u.map(u=>`<div class="uli"><div class="ulv" style="background:${u.role==='admin'?'gold':'var(--c1)'}">${u.name.charAt(0)}</div><div><strong>${escapeHtml(u.name)}</strong> ${u.role==='admin'?'👑':''}<br><small>${escapeHtml(u.email)} | Dernière connexion: ${u.lastLogin?new Date(u.lastLogin).toLocaleString():'-'}</small><br><small>📦 ${db.i.filter(it=>it.uid===u.id).length} objets</small></div></div>`).join(''); document.getElementById('adminAllItems').innerHTML=db.i.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(it=>`<div class="uli"><div class="ulv" style="background:var(--c2)">📦</div><div><strong>${escapeHtml(it.customer)} - ${escapeHtml(it.ocNumber)}</strong><br><small>${escapeHtml(it.poFabric)} | ${escapeHtml(it.style||'-')}<br>👤 ${db.u.find(u=>u.id===it.uid)?.name||'?'} | ${new Date(it.createdAt).toLocaleDateString()}</small></div></div>`).join('')||'<div class="emp">Aucun objet</div>'; document.getElementById('adminHistory').innerHTML=db.history.slice(0,50).map(h=>`<div class="history-item"><strong>${h.action}</strong><br><small>${escapeHtml(h.userName||'Système')} - ${new Date(h.timestamp).toLocaleString()}</small><br><span style="font-size:11px;color:var(--t2)">${escapeHtml(h.details)}</span></div>`).join('')||'<div class="emp">Aucun historique</div>'; document.getElementById('adminBackup').innerHTML=`<button class="backup-btn" onclick="backupDB()">💾 Créer une sauvegarde</button><div style="margin-top:12px">${db.backups.map(b=>`<div class="history-item" style="display:flex;justify-content:space-between;align-items:center"><span>📀 ${new Date(b.timestamp).toLocaleString()}</span><button class="btn-sm" style="background:var(--c1);color:#fff;padding:4px 8px" onclick="restoreBackup('${b.id}')">Restaurer</button></div>`).join('')||'<div class="emp">Aucune sauvegarde</div>'}</div>`; }
+function adminTab(tab,el){ document.querySelectorAll('.at').forEach(x=>x.classList.remove('on')); el.classList.add('on'); document.getElementById('adminUsers').style.display=tab==='users'?'block':'none'; document.getElementById('adminAllItems').style.display=tab==='allItems'?'block':'none'; document.getElementById('adminHistory').style.display=tab==='history'?'block':'none'; document.getElementById('adminBackup').style.display=tab==='backup'?'block':'none'; }
+function resetAllData(){ if(confirm('⚠️ Supprimer TOUTES les données ? Irréversible !')){ localStorage.removeItem('aiza_db'); location.reload(); } }
 function toast(msg,type){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=type==='ok'?'var(--ok)':type==='no'?'var(--no)':'var(--warn)'; t.style.display='block'; setTimeout(()=>t.style.display='none',2500); }
 function openM(id){ document.getElementById(id).classList.add('v'); document.body.style.overflow='hidden'; }
 function closeM(id){ document.getElementById(id).classList.remove('v'); document.body.style.overflow=''; }
