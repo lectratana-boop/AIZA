@@ -11,73 +11,78 @@
 
 <style>
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-  :root{--c1:#6C63FF;--c2:#5A52D5;--ok:#00C896;--warn:#FFB946;--no:#FF4757;--bg:#F0F2F5;--txt:#2D3436;--t2:#636E72;--bd:#DFE6E9;--sh:0 2px 12px rgba(0,0,0,.07);--r:16px;--rs:12px}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);max-width:480px;margin:0 auto;line-height:1.5}
+  :root{--c1:#6C63FF;--c2:#5A52D5;--c3:#FF6584;--ok:#00C896;--warn:#FFB946;--no:#FF4757;--bg:#F0F2F5;--txt:#2D3436;--t2:#636E72;--t3:#B2BEC3;--bd:#DFE6E9;--sh:0 2px 12px rgba(0,0,0,.07);--r:16px;--rs:12px}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);max-width:480px;margin:0 auto;line-height:1.5;overflow-x:hidden}
   
   /* SPLASH SCREEN */
   #splash{position:fixed;top:0;left:0;width:100%;height:100%;background:white;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s}
   #splash.off{opacity:0;pointer-events:none}
-  #splash img{width:180px;height:180px;object-fit:contain}
+  #splash img{width:150px;height:150px;object-fit:contain}
 
-  /* PAGES & CARDS */
-  .pg{display:none;padding:15px;animation:fade 0.3s}
+  /* UI ELEMENTS */
+  .pg{display:none;padding:20px;animation:fade 0.3s}
   .pg.on{display:block}
   @keyframes fade{from{opacity:0}to{opacity:1}}
-  .card{background:#fff;padding:20px;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:15px}
   
-  /* FORMULAIRE */
-  label{display:block;font-weight:700;margin-bottom:6px;font-size:14px;color:var(--t2)}
-  input,select,textarea{display:block;width:100%;padding:12px;border:2px solid var(--bd);border-radius:var(--rs);font-size:16px;margin-bottom:12px;outline:none}
-  .btn{display:block;width:100%;padding:14px;border:none;border-radius:var(--rs);font-weight:700;font-size:16px;cursor:pointer;transition:0.2s}
+  .card{background:#fff;padding:20px;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:20px}
+  label{display:block;font-weight:700;margin-bottom:8px;font-size:14px;color:var(--t2)}
+  input,select,textarea{display:block;width:100%;padding:12px;border:2px solid var(--bd);border-radius:var(--rs);font-size:16px;margin-bottom:15px}
+  .btn{display:block;width:100%;padding:15px;border:none;border-radius:var(--rs);font-weight:700;font-size:16px;cursor:pointer;text-align:center;transition:0.2s}
   .btn-p{background:var(--c1);color:#fff}
-  .row{display:flex;gap:8px;margin-bottom:12px}
+  .row{display:flex;gap:10px;align-items:center}
   
-  /* RECHERCHE & LISTE */
+  /* SEARCH BAR */
   .search-box{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:100}
+
+  /* LIST ITEMS */
   .item{background:#fff;padding:15px;border-radius:var(--rs);margin-bottom:10px;box-shadow:var(--sh)}
-  .item-img{width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:10px}
+  .item-img{width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px}
   
-  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;color:#fff;display:none;z-index:10000}
+  #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:30px;color:#fff;font-weight:700;display:none;z-index:10000}
 </style>
 </head>
 <body>
 
 <div id="splash">
-  <img src="logo.png" alt="Aiza"> 
-</div>
+  <img src="logo.png" alt="Aiza Logo"> </div>
 
 <div id="pgL" class="pg on">
-  <div class="card" style="margin-top:60px">
-    <h2 style="text-align:center;margin-bottom:25px">Connexion</h2>
+  <div class="card" style="margin-top:50px">
+    <h2 style="text-align:center;margin-bottom:20px">Connexion Aiza</h2>
     <input type="email" id="liEm" placeholder="Email">
     <input type="password" id="liPs" placeholder="Mot de passe">
-    <button class="btn btn-p" onclick="doLogin()">Entrer</button>
+    <button class="btn btn-p" onclick="doLogin()">Se connecter</button>
   </div>
 </div>
 
 <div id="pgM" class="pg">
   <div class="search-box">
-    <input type="text" id="find" placeholder="🔍 Rechercher (Fabric, Style, OC)..." oninput="recherche()">
+    <input type="text" id="find" placeholder="🔍 PO Fabric, Style ou OC..." oninput="recherche()">
   </div>
 
   <div class="card">
+    <h3>Nouvel Objet</h3>
     <label>CUSTOMER *</label>
     <div class="row">
-      <select id="fCust" style="margin:0"></select>
-      <button onclick="editOpt('cust','add')" class="btn btn-p" style="width:50px">+</button>
-      <button onclick="editOpt('cust','del')" class="btn" style="width:50px;background:var(--no);color:white">-</button>
+      <select id="fCust" style="margin-bottom:0"></select>
+      <button onclick="editList('cust','add')" class="btn btn-p" style="width:50px">+</button>
+      <button onclick="editList('cust','del')" class="btn" style="width:50px;background:var(--no);color:white">-</button>
     </div>
 
-    <label>Style *</label><input type="text" id="fStyle">
-    
+    <label style="margin-top:15px">Style *</label>
+    <input type="text" id="fStyle">
+
     <label>Color *</label>
     <div class="row">
-      <select id="fCol" style="margin:0"></select>
-      <button onclick="editOpt('col','add')" class="btn btn-p" style="width:50px">+</button>
+      <select id="fCol" style="margin-bottom:0"></select>
+      <button onclick="editList('col','add')" class="btn btn-p" style="width:50px">+</button>
     </div>
 
-    <label>PO Fabric</label><input type="text" id="fFab">
-    <label>OC Number</label><input type="number" id="fOC">
+    <label style="margin-top:15px">PO Fabric</label>
+    <input type="text" id="fFab">
+
+    <label>OC Number</label>
+    <input type="number" id="fOC">
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
       <div><label>Métrage total (mts)</label><input type="number" id="fMet"></div>
@@ -87,34 +92,33 @@
     </div>
 
     <label>Description</label>
-    <textarea id="fDesc" rows="2"></textarea>
+    <textarea id="fDesc"></textarea>
 
-    <button class="btn" onclick="snap()" style="background:#eee;color:var(--c1);margin-bottom:10px">📸 Photo</button>
+    <button class="btn" onclick="snap()" style="background:#f0f0f0;color:var(--c1);margin-bottom:10px">📸 Prendre Photo</button>
     <img id="vImg" style="width:100%;border-radius:8px;display:none;margin-bottom:10px">
 
     <button class="btn btn-p" onclick="save()">Enregistrer l'objet</button>
   </div>
 
   <div id="list"></div>
-  
-  <button id="btnA" class="btn" style="display:none;background:var(--warn);color:white;margin-top:20px" onclick="showPage('pgA')">Mode Administrateur</button>
-  <button class="btn" onclick="auth.signOut()" style="background:none;color:var(--t2);margin-top:10px">Déconnexion</button>
+  <button class="btn" onclick="doLogout()" style="background:none;color:var(--t2);margin-top:20px">Déconnexion</button>
 </div>
 
 <div id="pgA" class="pg">
   <div class="card">
-    <h3>Gestion Admin</h3>
-    <p style="font-size:12px;margin:10px 0" id="admD"></p>
-    <button class="btn" style="background:var(--no);color:white" onclick="recovery()">🔄 Annuler/Recovery (Backup)</button>
+    <h3>Panneau Admin</h3>
+    <p id="adminStatus">Chargement des logs...</p>
+    <button class="btn" style="background:var(--warn);color:white;margin-top:10px" onclick="recovery()">Recovery (Dernier Backup)</button>
     <button class="btn" style="margin-top:10px" onclick="showPage('pgM')">Retour Menu</button>
   </div>
+  <div id="adminLogs"></div>
 </div>
 
 <div id="toast"></div>
 
 <script>
   // CONFIGURATION FIREBASE
-  const firebaseConfig = {
+  var firebaseConfig = {
     apiKey: "AIzaSyBY_zHJAaNLtXDBlD1TYMzALlMlMHNBwWk",
     authDomain: "aiza-38b31.firebaseapp.com",
     databaseURL: "https://aiza-38b31-default-rtdb.europe-west1.firebasedatabase.app/",
@@ -127,20 +131,21 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const auth = firebase.auth();
-  let photoData = "";
-  let fullList = [];
+  let currentPhoto = "";
+  let fullData = [];
 
-  // LANCEMENT
-  window.onload = () => {
+  // INITIALISATION
+  document.addEventListener('DOMContentLoaded', () => {
+    // Splash screen visible pendant 2.5 secondes
     setTimeout(() => {
       document.getElementById('splash').classList.add('off');
       auth.onAuthStateChanged(user => {
-        if(user) setupApp(user);
+        if(user) showApp(user);
         else showPage('pgL');
       });
     }, 2500);
-    initLists();
-  };
+    loadStaticLists();
+  });
 
   function showPage(id) {
     document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
@@ -150,56 +155,71 @@
   function doLogin() {
     const em = document.getElementById('liEm').value;
     const ps = document.getElementById('liPs').value;
-    auth.signInWithEmailAndPassword(em, ps).catch(() => toast("Erreur Login","no"));
+    auth.signInWithEmailAndPassword(em, ps).catch(err => toast("Erreur de connexion","no"));
   }
 
-  function setupApp(user) {
+  function doLogout() { auth.signOut(); location.reload(); }
+
+  function showApp(user) {
     showPage('pgM');
+    // Si c'est l'admin (identifié par son email)
     if(user.email !== 'user2026@gmail.com') {
-      document.getElementById('btnA').style.display = 'block';
+      document.getElementById('pgA').style.display = 'block';
     }
-    db.ref('aiza/items').on('value', s => {
-      const val = s.val();
-      fullList = val ? Object.values(val) : [];
-      render(fullList);
-    });
+    sync();
   }
 
-  // LISTES
-  let custs = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
-  let cols = ["Black", "Navy", "White"];
+  // GESTION LISTES DYNAMIQUES
+  let customers = ["Cap Union", "Jcrew", "Everlane", "MacDonald", "Faherty"];
+  let colors = ["Black", "Navy", "White"];
 
-  function initLists() {
-    document.getElementById('fCust').innerHTML = custs.map(c => `<option value="${c}">${c}</option>`).join('');
-    document.getElementById('fCol').innerHTML = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+  function loadStaticLists() {
+    const sc = document.getElementById('fCust');
+    const sl = document.getElementById('fCol');
+    sc.innerHTML = customers.map(c => `<option value="${c}">${c}</option>`).join('');
+    sl.innerHTML = colors.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
-  function editOpt(t, act) {
-    if(act==='add') {
-      let v = prompt("Nouvelle valeur :");
-      if(v) { if(t==='cust') custs.push(v); else cols.push(v); initLists(); }
+  function editList(type, action) {
+    if(action==='add') {
+      let v = prompt("Entrez la nouvelle valeur :");
+      if(v) {
+        if(type==='cust') customers.push(v); else colors.push(v);
+        loadStaticLists();
+      }
     } else {
       let s = document.getElementById('fCust');
-      custs.splice(s.selectedIndex, 1); initLists();
+      customers.splice(s.selectedIndex, 1);
+      loadStaticLists();
     }
   }
 
   // PHOTO
   function snap() {
-    const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.capture = 'environment';
+    const i = document.createElement('input');
+    i.type = 'file'; i.accept = 'image/*'; i.capture = 'environment';
     i.onchange = e => {
       const f = e.target.files[0];
       const r = new FileReader();
       r.onload = () => {
-        photoData = r.result;
-        const v = document.getElementById('vImg'); v.src = photoData; v.style.display = 'block';
+        currentPhoto = r.result;
+        document.getElementById('vImg').src = currentPhoto;
+        document.getElementById('vImg').style.display = 'block';
       };
       r.readAsDataURL(f);
     };
     i.click();
   }
 
-  // SAVE & SYNC
+  // SYNCHRONISATION FIREBASE
+  function sync() {
+    db.ref('aiza/items').on('value', snap => {
+      const val = snap.val();
+      fullData = val ? Object.values(val) : [];
+      render(fullData);
+    });
+  }
+
   function save() {
     const obj = {
       customer: document.getElementById('fCust').value,
@@ -212,40 +232,40 @@
       date: document.getElementById('fDate').value,
       left: document.getElementById('fLeft').value,
       desc: document.getElementById('fDesc').value,
-      img: photoData,
-      ts: Date.now(),
-      user: auth.currentUser.email
+      img: currentPhoto,
+      user: auth.currentUser.email,
+      ts: Date.now()
     };
 
-    if(!obj.customer || !obj.style) return toast("Champs étoilés obligatoires","no");
+    if(!obj.customer || !obj.style) return toast("Remplissez les champs obligatoires","no");
 
-    // Backup avant modif
-    db.ref('aiza/backup').set(fullList);
+    // Backup avant insertion (pour le Recovery admin)
+    db.ref('aiza/backup').set(fullData);
 
     db.ref('aiza/items').push(obj).then(() => {
-      toast("Enregistré !","ok");
-      setTimeout(()=>location.reload(), 1000);
+      toast("Enregistré avec succès !","ok");
+      location.reload();
     });
   }
 
   function render(data) {
-    const c = document.getElementById('list');
-    c.innerHTML = data.sort((a,b)=>b.ts-a.ts).map(i => `
+    const cont = document.getElementById('list');
+    cont.innerHTML = data.sort((a,b)=>b.ts-a.ts).map(i => `
       <div class="item">
         ${i.img ? `<img src="${i.img}" class="item-img">` : ''}
-        <div style="font-weight:bold;color:var(--c1);font-size:18px">${i.customer}</div>
+        <div style="font-weight:bold;color:var(--c1)">${i.customer}</div>
         <div><b>Style:</b> ${i.style} | <b>OC:</b> ${i.oc}</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">
-          Fabric: ${i.fabric} | Met: ${i.metrage}m | Rest: ${i.left}m
+        <div style="font-size:13px;color:var(--t2)">
+          Fabric: ${i.fabric} | Met: ${i.metrage}mts | Rest: ${i.left}mts
         </div>
-        <div style="font-size:12px;color:#999;margin-top:6px">${i.desc}</div>
+        <div style="font-size:12px;margin-top:5px;font-style:italic">${i.desc}</div>
       </div>
     `).join('');
   }
 
   function recherche() {
     const v = document.getElementById('find').value.toLowerCase();
-    const res = fullList.filter(i => 
+    const res = fullData.filter(i => 
       (i.fabric && i.fabric.toLowerCase().includes(v)) || 
       (i.style && i.style.toLowerCase().includes(v)) || 
       (i.oc && i.oc.toString().includes(v))
@@ -254,17 +274,20 @@
   }
 
   function recovery() {
-    if(confirm("Voulez-vous restaurer la version précédente de la base de données ?")) {
+    if(confirm("Restaurer la base de données précédente ?")) {
       db.ref('aiza/backup').once('value', s => {
-        if(s.val()) { db.ref('aiza/items').set(s.val()); toast("Restauration OK","ok"); }
+        if(s.val()) {
+          db.ref('aiza/items').set(s.val());
+          toast("Base restaurée","ok");
+        }
       });
     }
   }
 
-  function toast(m,t) {
-    const x = document.getElementById('toast'); x.textContent = m;
-    x.style.background = t==='ok'?'var(--ok)':'var(--no)';
-    x.style.display = 'block'; setTimeout(()=>x.style.display='none',2500);
+  function toast(m,t){
+    const x=document.getElementById('toast');
+    x.textContent=m; x.style.background=t==='ok'?'var(--ok)':'var(--no)';
+    x.style.display='block'; setTimeout(()=>x.style.display='none',2500);
   }
 </script>
 </body>
